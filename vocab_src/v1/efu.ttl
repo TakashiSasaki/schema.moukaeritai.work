@@ -1,0 +1,80 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:   <https://schema.moukaeritai.work/vocab/> .
+@prefix csvw: <http://www.w3.org/ns/csvw#> .
+
+###########################################################################
+# 独自データ型
+###########################################################################
+
+ex:FiletimeInstant a rdfs:Datatype ;
+    rdfs:label   "Windows FILETIME timestamp"@en ;
+    rdfs:comment "Windows filesystem 64-bit timestamp (100ns units since 1601-01-01)."@en .
+
+###########################################################################
+# クラス定義
+###########################################################################
+
+ex:EfuRecord a rdfs:Class ;
+    rdfs:label   "EFU record"@en ;
+    rdfs:comment "Everythingというファイル検索システムのファイルカタログにおける一行分。"@ja .
+
+###########################################################################
+# プロパティ定義
+###########################################################################
+
+# ファイルパス（OS依存の文字列表現）
+ex:filePath a rdf:Property ;
+    rdfs:label   "File path"@en ;
+    rdfs:label   "ファイルパス"@ja ;
+    rdfs:comment "ファイルシステム上のアイテムを表すパス文字列。OSごとに固有の表現でよい。"@ja ;
+    rdfs:range   xsd:string .
+
+ex:efuFilename a rdf:Property ;
+    rdfs:subPropertyOf ex:filePath ;
+    rdfs:domain  ex:EfuRecord ;
+    csvw:name    "Filename" .
+
+# ファイルサイズ（バイト数）
+ex:fileSize a rdf:Property ;
+    rdfs:label      "Size"@en ;
+    rdfs:label      "サイズ（バイト数）"@ja ;
+    rdfs:comment    "ファイルのバイトサイズを表す整数。0以上の整数で、圧縮前・展開後などの意味は文脈に依存する。"@ja ;
+    rdfs:range      xsd:unsignedLong .
+
+ex:efuSize a rdf:Property ;
+    rdfs:subPropertyOf ex:fileSize ;
+    rdfs:domain     ex:EfuRecord ;
+    csvw:name       "Size" .
+
+# 更新日時（生の FILETIME）
+ex:modifiedDatetime a rdf:Property ;
+    rdfs:label   "Modified time (FILETIME)"@en ;
+    rdfs:label   "更新日時（FILETIME）"@ja ;
+    rdfs:comment "ファイルやディレクトリが更新された日時（Windows FILETIME 形式）。"@ja ;
+    rdfs:domain  ex:EfuRecord ;
+    rdfs:range   ex:FiletimeInstant ;
+    csvw:name    "Date Modified" .
+
+# 作成日時（生の FILETIME）
+ex:createdDatetime a rdf:Property ;
+    rdfs:label   "Created time (FILETIME)"@en ;
+    rdfs:label   "作成日時（FILETIME）"@ja ;
+    rdfs:comment "ファイルやディレクトリが作成された日時（Windows FILETIME 形式）。"@ja ;
+    rdfs:domain  ex:EfuRecord ;
+    rdfs:range   ex:FiletimeInstant ;
+    csvw:name    "Date Created" .
+
+# ファイル属性ビットマスク（Windows FILE_ATTRIBUTE_* の OR）
+ex:fileAttributes a rdf:Property ;
+    rdfs:label   "Attributes"@en ;
+    rdfs:label   "ファイル属性ビットマスク"@ja ;
+    rdfs:comment """
+Windows API (GetFileAttributes 等) で用いられる FILE_ATTRIBUTE_* 定数を
+ビット単位の OR で組み合わせた 32 ビット符号なし整数値。
+たとえば FILE_ATTRIBUTE_READONLY(0x0001) や FILE_ATTRIBUTE_DIRECTORY(0x0010)
+などを含む。ビット構造の解釈は Windows の仕様に従う。
+"""@ja ;
+    rdfs:domain ex:EfuRecord ;
+    csvw:name   "Attributes" .

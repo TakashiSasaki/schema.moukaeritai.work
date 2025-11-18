@@ -1,0 +1,27 @@
+{
+  "@context": {
+    "@version": 1.1,
+
+    "schema": "https://schema.org/",
+    "ex": "https://schema.moukaeritai.work/vocab/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+
+    "@base": "https://schema.moukaeritai.work/vocab/",
+
+    "Note": "ex:Note",
+    "Person": "ex:Person",
+
+    "name": "schema:name",
+    "description": "schema:description",
+
+    "createdAt": {
+      "@id": "schema:dateCreated",
+      "@type": "xsd:dateTime"
+    },
+
+    "modifiedAt": {
+      "@id": "schema:dateModified",
+      "@type": "xsd:dateTime"
+    }
+  }
+}
