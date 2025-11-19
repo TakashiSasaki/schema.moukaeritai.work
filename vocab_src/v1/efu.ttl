@@ -35,21 +35,22 @@ ex:efuFilename a rdf:Property ;
     rdfs:subPropertyOf ex:filePath ;
     rdfs:domain  ex:EfuRecord ;
     csvw:name    "Filename" .
+    rdfs:comment "EverythingのEFUファイルではこのカラムだけが必須。"
 
 # ファイルサイズ（バイト数）
-ex:fileSize a rdf:Property ;
+ex:efuFileSize a rdf:Property ;
+    rdfs:subPropertyOf ex:fileSize ;
     rdfs:label      "Size"@en ;
     rdfs:label      "サイズ（バイト数）"@ja ;
     rdfs:comment    "ファイルのバイトサイズを表す整数。0以上の整数で、圧縮前・展開後などの意味は文脈に依存する。"@ja ;
+    rdfs:domain    ex:EfuRecord ;
+    csvw:name   "Size" ;
     rdfs:range      xsd:unsignedLong .
 
-ex:efuSize a rdf:Property ;
-    rdfs:subPropertyOf ex:fileSize ;
-    rdfs:domain     ex:EfuRecord ;
-    csvw:name       "Size" .
 
 # 更新日時（生の FILETIME）
-ex:modifiedDatetime a rdf:Property ;
+ex:efuModifiedDatetime a rdf:Property ;
+    rdfs:subPropertyOf ex:modifiedDatetime ;
     rdfs:label   "Modified time (FILETIME)"@en ;
     rdfs:label   "更新日時（FILETIME）"@ja ;
     rdfs:comment "ファイルやディレクトリが更新された日時（Windows FILETIME 形式）。"@ja ;
@@ -58,7 +59,8 @@ ex:modifiedDatetime a rdf:Property ;
     csvw:name    "Date Modified" .
 
 # 作成日時（生の FILETIME）
-ex:createdDatetime a rdf:Property ;
+ex:efuCreatedDatetime a rdf:Property ;
+    rdfs:subPropertyOf ex:createdDatetime ;
     rdfs:label   "Created time (FILETIME)"@en ;
     rdfs:label   "作成日時（FILETIME）"@ja ;
     rdfs:comment "ファイルやディレクトリが作成された日時（Windows FILETIME 形式）。"@ja ;
@@ -67,7 +69,8 @@ ex:createdDatetime a rdf:Property ;
     csvw:name    "Date Created" .
 
 # ファイル属性ビットマスク（Windows FILE_ATTRIBUTE_* の OR）
-ex:fileAttributes a rdf:Property ;
+ex:efuFileAttributes a rdf:Property ;
+    rdfs:subPropertyOf ex:fileAttributes ;
     rdfs:label   "Attributes"@en ;
     rdfs:label   "ファイル属性ビットマスク"@ja ;
     rdfs:comment """
