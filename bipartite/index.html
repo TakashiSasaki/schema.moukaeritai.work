@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bipartite Graph Musings</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; padding: 2em; }
+        #menu { float: left; width: 20%; }
+        #content { margin-left: 22%; }
+        .markdown-body { border: 1px solid #ddd; padding: 1em; }
+    </style>
+</head>
+<body>
+    <h1>Bipartite Graph Musings</h1>
+    <div id="menu">
+        <h2>Documents</h2>
+        <ul id="file-list">
+            <!-- Links to markdown files will be inserted here -->
+        </ul>
+    </div>
+    <div id="content">
+        <h2>Content</h2>
+        <div id="markdown-content" class="markdown-body">
+            <p>Select a document from the menu to display its content.</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
+    <script>
+        const fileList = document.getElementById('file-list');
+        const markdownContent = document.getElementById('markdown-content');
+        const converter = new showdown.Converter();
+
+        // Add markdown files to this array
+        const markdownFiles = [
+            'sample.md',
+        ];
+
+        function loadMarkdown(fileName) {
+            fetch(fileName)
+                .then(response => response.ok ? response.text() : Promise.reject('File not found'))
+                .then(text => {
+                    const html = converter.makeHtml(text);
+                    markdownContent.innerHTML = html;
+                })
+                .catch(error => {
+                    markdownContent.innerHTML = `<p>Error loading content: ${error}</p>`;
+                });
+        }
+
+        markdownFiles.forEach(fileName => {
+            const listItem = document.createElement('li');
+            const link = document.createElement('a');
+            link.href = '#';
+            link.textContent = fileName;
+            link.onclick = (e) => {
+                e.preventDefault();
+                loadMarkdown(fileName);
+            };
+            listItem.appendChild(link);
+            fileList.appendChild(listItem);
+        });
+    </script>
+</body>
+</html>
