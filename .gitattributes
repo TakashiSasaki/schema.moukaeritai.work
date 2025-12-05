@@ -1,0 +1,5 @@
+# Treat common text files as text
+*.md text
+*.json text
+*.js text
+*.html text
