@@ -8,7 +8,7 @@
   a csvw:Table ;
   dc:hasVersion "0.3" ;
   dc:issued "2025-12-19"^^xsd:date ;
-  dc:description "Draft CSVW schema for Everything EFU file lists. Version 0.3 includes observation metadata and content hashes." ;
+  dc:description "Draft CSVW schema for Everything EFU file lists. Version 0.3 includes observation metadata and content hashes/checksums." ;
   csvw:url <filelist.efu> ;
   dc:creator [
     a foaf:Person ;
@@ -101,6 +101,13 @@
         csvw:datatype "string" ;
         csvw:required false ;
         dc:description "File content SHA-256 hash (hexadecimal). (Everything 1.5+ extended column)"
+      ]
+      [
+        a csvw:Column ;
+        csvw:name "CRC-32" ;
+        csvw:datatype "string" ;
+        csvw:required false ;
+        dc:description "File content CRC-32 checksum (hexadecimal; standard IEEE 802.3). (Everything 1.5+ extended column)"
       ]
       [
         a csvw:Column ;

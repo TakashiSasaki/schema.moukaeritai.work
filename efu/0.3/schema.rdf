@@ -14,7 +14,7 @@
     </dc:issued>
 
     <dc:description>
-      Draft CSVW schema for Everything EFU file lists. Version 0.3 includes observation metadata and content hashes.
+      Draft CSVW schema for Everything EFU file lists. Version 0.3 includes observation metadata and content hashes/checksums.
     </dc:description>
 
     <csvw:url rdf:resource="filelist.efu"/>
@@ -186,6 +186,19 @@
                 </csvw:required>
                 <dc:description>
                   File content SHA-256 hash (hexadecimal). (Everything 1.5+ extended column)
+                </dc:description>
+              </csvw:Column>
+            </rdf:li>
+
+            <rdf:li>
+              <csvw:Column>
+                <csvw:name>CRC-32</csvw:name>
+                <csvw:datatype>string</csvw:datatype>
+                <csvw:required rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">
+                  false
+                </csvw:required>
+                <dc:description>
+                  File content CRC-32 checksum (hexadecimal; standard IEEE 802.3). (Everything 1.5+ extended column)
                 </dc:description>
               </csvw:Column>
             </rdf:li>

@@ -38,7 +38,7 @@
     "foaf:homepage": "https://x.com/TakashiSasaki"
   },
 
-  "dc:description": "Draft CSVW schema for Everything EFU file lists. Version 0.3 includes observation metadata and content hashes.",
+  "dc:description": "Draft CSVW schema for Everything EFU file lists. Version 0.3 includes observation metadata and content hashes/checksums.",
 
   "url": "filelist.efu",
 
@@ -115,6 +115,12 @@
         "datatype": "string",
         "required": false,
         "dc:description": "File content SHA-256 hash (hexadecimal). (Everything 1.5+ extended column)"
+      },
+      {
+        "name": "CRC-32",
+        "datatype": "string",
+        "required": false,
+        "dc:description": "File content CRC-32 checksum (hexadecimal; standard IEEE 802.3). (Everything 1.5+ extended column)"
       },
       {
         "name": "Git Blob SHA-1",
