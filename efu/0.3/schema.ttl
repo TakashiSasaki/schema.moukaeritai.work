@@ -111,10 +111,17 @@
       ]
       [
         a csvw:Column ;
+        csvw:name "CRC-64" ;
+        csvw:datatype "string" ;
+        csvw:required false ;
+        dc:description "File content CRC-64 checksum (hexadecimal; ECMA-182). (Everything 1.5+ extended column)"
+      ]
+      [
+        a csvw:Column ;
         csvw:name "Git Blob SHA-1" ;
         csvw:datatype "string" ;
         csvw:required false ;
-        dc:description "Git blob object hash (SHA-1). Calculated as sha1(\"blob \" + size + \"\0\" + content). (Schema-defined metadata; ignored by Everything)"
+        dc:description "Git blob object hash (SHA-1). Calculated as sha1(\"blob \" + size + \"\\0\" + content). (Schema-defined metadata; ignored by Everything)"
       ]
       [
         a csvw:Column ;

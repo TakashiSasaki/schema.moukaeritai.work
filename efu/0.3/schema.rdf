@@ -205,13 +205,26 @@
 
             <rdf:li>
               <csvw:Column>
+                <csvw:name>CRC-64</csvw:name>
+                <csvw:datatype>string</csvw:datatype>
+                <csvw:required rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">
+                  false
+                </csvw:required>
+                <dc:description>
+                  File content CRC-64 checksum (hexadecimal; ECMA-182). (Everything 1.5+ extended column)
+                </dc:description>
+              </csvw:Column>
+            </rdf:li>
+
+            <rdf:li>
+              <csvw:Column>
                 <csvw:name>Git Blob SHA-1</csvw:name>
                 <csvw:datatype>string</csvw:datatype>
                 <csvw:required rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">
                   false
                 </csvw:required>
                 <dc:description>
-                  Git blob object hash (SHA-1). Calculated as sha1("blob " + size + "\0" + content). (Schema-defined metadata; ignored by Everything)
+                  Git blob object hash (SHA-1). Calculated as sha1("blob " + size + "\\0" + content). (Schema-defined metadata; ignored by Everything)
                 </dc:description>
               </csvw:Column>
             </rdf:li>

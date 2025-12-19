@@ -123,6 +123,12 @@
         "dc:description": "File content CRC-32 checksum (hexadecimal; standard IEEE 802.3). (Everything 1.5+ extended column)"
       },
       {
+        "name": "CRC-64",
+        "datatype": "string",
+        "required": false,
+        "dc:description": "File content CRC-64 checksum (hexadecimal; ECMA-182). (Everything 1.5+ extended column)"
+      },
+      {
         "name": "Git Blob SHA-1",
         "datatype": "string",
         "required": false,
