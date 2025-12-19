@@ -8,7 +8,7 @@
   a csvw:Table ;
   dc:hasVersion "0.3" ;
   dc:issued "2025-12-19"^^xsd:date ;
-  dc:description "Draft CSVW schema for Everything EFU file lists. Version 0.3 includes observation metadata (Seen Date, Seen Host, Seen User)." ;
+  dc:description "Draft CSVW schema for Everything EFU file lists. Version 0.3 includes observation metadata and content hashes." ;
   csvw:url <filelist.efu> ;
   dc:creator [
     a foaf:Person ;
@@ -80,6 +80,41 @@
         csvw:datatype "string" ;
         csvw:required false ;
         dc:description "File type description or extension. (Everything extended column)"
+      ]
+      [
+        a csvw:Column ;
+        csvw:name "MD5" ;
+        csvw:datatype "string" ;
+        csvw:required false ;
+        dc:description "File content MD5 hash (hexadecimal). (Everything 1.5+ extended column)"
+      ]
+      [
+        a csvw:Column ;
+        csvw:name "SHA-1" ;
+        csvw:datatype "string" ;
+        csvw:required false ;
+        dc:description "File content SHA-1 hash (hexadecimal). (Everything 1.5+ extended column)"
+      ]
+      [
+        a csvw:Column ;
+        csvw:name "SHA-256" ;
+        csvw:datatype "string" ;
+        csvw:required false ;
+        dc:description "File content SHA-256 hash (hexadecimal). (Everything 1.5+ extended column)"
+      ]
+      [
+        a csvw:Column ;
+        csvw:name "Git Blob SHA-1" ;
+        csvw:datatype "string" ;
+        csvw:required false ;
+        dc:description "Git blob object hash (SHA-1). Calculated as sha1(\"blob \" + size + \"\0\" + content). (Schema-defined metadata; ignored by Everything)"
+      ]
+      [
+        a csvw:Column ;
+        csvw:name "Git Blob SHA-256" ;
+        csvw:datatype "string" ;
+        csvw:required false ;
+        dc:description "Git blob object hash (SHA-256). Future-proof for Git transition to SHA-256. (Schema-defined metadata; ignored by Everything)"
       ]
       [
         a csvw:Column ;
