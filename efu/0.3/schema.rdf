@@ -42,7 +42,7 @@
                   true
                 </csvw:required>
                 <dc:description>
-                  Path or filename (usually absolute Windows path).
+                  Path or filename (usually absolute Windows path). (Everything default column)
                 </dc:description>
               </csvw:Column>
             </rdf:li>
@@ -55,7 +55,7 @@
                   false
                 </csvw:required>
                 <dc:description>
-                  File size in bytes.
+                  File size in bytes. (Everything default column)
                 </dc:description>
               </csvw:Column>
             </rdf:li>
@@ -68,7 +68,7 @@
                   false
                 </csvw:required>
                 <dc:description>
-                  Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time.
+                  Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time. (Everything default column)
                 </dc:description>
               </csvw:Column>
             </rdf:li>
@@ -81,7 +81,7 @@
                   false
                 </csvw:required>
                 <dc:description>
-                  Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time.
+                  Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time. (Everything default column)
                 </dc:description>
               </csvw:Column>
             </rdf:li>
@@ -94,7 +94,7 @@
                   false
                 </csvw:required>
                 <dc:description>
-                  Windows file attribute flags (decimal or 0x-prefixed hex).
+                  Windows file attribute flags (decimal or 0x-prefixed hex). (Everything default column)
                 </dc:description>
               </csvw:Column>
             </rdf:li>
@@ -107,7 +107,7 @@
                   false
                 </csvw:required>
                 <dc:description>
-                  Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time.
+                  Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time. (Everything extended column)
                 </dc:description>
               </csvw:Column>
             </rdf:li>
@@ -120,7 +120,7 @@
                   false
                 </csvw:required>
                 <dc:description>
-                  Number of times the file has been run/opened from Everything.
+                  Number of times the file has been run/opened from Everything. (Everything extended column)
                 </dc:description>
               </csvw:Column>
             </rdf:li>
@@ -133,7 +133,7 @@
                   false
                 </csvw:required>
                 <dc:description>
-                  Timestamp of the last run; Windows FILETIME (decimal) or ISO 8601 date-time.
+                  Timestamp of the last run; Windows FILETIME (decimal) or ISO 8601 date-time. (Everything extended column)
                 </dc:description>
               </csvw:Column>
             </rdf:li>
@@ -146,7 +146,7 @@
                   false
                 </csvw:required>
                 <dc:description>
-                  File type description or extension.
+                  File type description or extension. (Everything extended column)
                 </dc:description>
               </csvw:Column>
             </rdf:li>
@@ -159,7 +159,7 @@
                   false
                 </csvw:required>
                 <dc:description>
-                  Timestamp when the file record was observed/collected.
+                  Timestamp when the file record was observed/collected. (Schema-defined metadata; ignored by Everything)
                 </dc:description>
               </csvw:Column>
             </rdf:li>
@@ -172,7 +172,7 @@
                   false
                 </csvw:required>
                 <dc:description>
-                  Hostname or machine name where the file was observed.
+                  Hostname or machine name where the file was observed. (Schema-defined metadata; ignored by Everything)
                 </dc:description>
               </csvw:Column>
             </rdf:li>
@@ -185,7 +185,7 @@
                   false
                 </csvw:required>
                 <dc:description>
-                  Username of the user who observed/collected the record.
+                  Username of the user who observed/collected the record. (Schema-defined metadata; ignored by Everything)
                 </dc:description>
               </csvw:Column>
             </rdf:li>

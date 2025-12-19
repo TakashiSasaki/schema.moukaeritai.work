@@ -48,73 +48,73 @@
         "name": "Filename",
         "datatype": "string",
         "required": true,
-        "dc:description": "Path or filename (usually absolute Windows path)."
+        "dc:description": "Path or filename (usually absolute Windows path). (Everything default column)"
       },
       {
         "name": "Size",
         "datatype": "integer",
         "required": false,
-        "dc:description": "File size in bytes."
+        "dc:description": "File size in bytes. (Everything default column)"
       },
       {
         "name": "Date Modified",
         "datatype": "string",
         "required": false,
-        "dc:description": "Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time."
+        "dc:description": "Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time. (Everything default column)"
       },
       {
         "name": "Date Created",
         "datatype": "string",
         "required": false,
-        "dc:description": "Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time."
+        "dc:description": "Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time. (Everything default column)"
       },
       {
         "name": "Attributes",
         "datatype": "string",
         "required": false,
-        "dc:description": "Windows file attribute flags (decimal or 0x-prefixed hex)."
+        "dc:description": "Windows file attribute flags (decimal or 0x-prefixed hex). (Everything default column)"
       },
       {
         "name": "Date Accessed",
         "datatype": "string",
         "required": false,
-        "dc:description": "Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time."
+        "dc:description": "Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time. (Everything extended column)"
       },
       {
         "name": "Run Count",
         "datatype": "integer",
         "required": false,
-        "dc:description": "Number of times the file has been run/opened from Everything."
+        "dc:description": "Number of times the file has been run/opened from Everything. (Everything extended column)"
       },
       {
         "name": "Date Run",
         "datatype": "string",
         "required": false,
-        "dc:description": "Timestamp of the last run; Windows FILETIME (decimal) or ISO 8601 date-time."
+        "dc:description": "Timestamp of the last run; Windows FILETIME (decimal) or ISO 8601 date-time. (Everything extended column)"
       },
       {
         "name": "Type",
         "datatype": "string",
         "required": false,
-        "dc:description": "File type description or extension."
+        "dc:description": "File type description or extension. (Everything extended column)"
       },
       {
         "name": "Seen Date",
         "datatype": "string",
         "required": false,
-        "dc:description": "Timestamp when the file record was observed/collected."
+        "dc:description": "Timestamp when the file record was observed/collected. (Schema-defined metadata; ignored by Everything)"
       },
       {
         "name": "Seen Host",
         "datatype": "string",
         "required": false,
-        "dc:description": "Hostname or machine name where the file was observed."
+        "dc:description": "Hostname or machine name where the file was observed. (Schema-defined metadata; ignored by Everything)"
       },
       {
         "name": "Seen User",
         "datatype": "string",
         "required": false,
-        "dc:description": "Username of the user who observed/collected the record."
+        "dc:description": "Username of the user who observed/collected the record. (Schema-defined metadata; ignored by Everything)"
       }
     ]
   }
