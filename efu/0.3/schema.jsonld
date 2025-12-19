@@ -126,7 +126,7 @@
         "name": "Git Blob SHA-1",
         "datatype": "string",
         "required": false,
-        "dc:description": "Git blob object hash (SHA-1). Calculated as sha1(\"blob \" + size + \"\0\" + content). (Schema-defined metadata; ignored by Everything)"
+        "dc:description": "Git blob object hash (SHA-1). Calculated as sha1(\"blob \" + size + \"\\0\" + content). (Schema-defined metadata; ignored by Everything)"
       },
       {
         "name": "Git Blob SHA-256",
