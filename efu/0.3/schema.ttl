@@ -1,0 +1,106 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix csvw: <http://www.w3.org/ns/csvw#> .
+@prefix dc:   <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+<https://schema.moukaeritai.work/efu/0.3>
+  a csvw:Table ;
+  dc:hasVersion "0.3" ;
+  dc:issued "2025-12-19"^^xsd:date ;
+  dc:description "Draft CSVW schema for Everything EFU file lists. Version 0.3 includes observation metadata (Seen Date, Seen Host, Seen User)." ;
+  csvw:url <filelist.efu> ;
+  dc:creator [
+    a foaf:Person ;
+    foaf:name "Takashi Sasaki" ;
+    foaf:homepage <https://x.com/TakashiSasaki>
+  ] ;
+  csvw:tableSchema [
+    a csvw:TableSchema ;
+    csvw:columns (
+      [
+        a csvw:Column ;
+        csvw:name "Filename" ;
+        csvw:datatype "string" ;
+        csvw:required true ;
+        dc:description "Path or filename (usually absolute Windows path)." 
+      ]
+      [
+        a csvw:Column ;
+        csvw:name "Size" ;
+        csvw:datatype "integer" ;
+        csvw:required false ;
+        dc:description "File size in bytes."
+      ]
+      [
+        a csvw:Column ;
+        csvw:name "Date Modified" ;
+        csvw:datatype "string" ;
+        csvw:required false ;
+        dc:description "Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time."
+      ]
+      [
+        a csvw:Column ;
+        csvw:name "Date Created" ;
+        csvw:datatype "string" ;
+        csvw:required false ;
+        dc:description "Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time."
+      ]
+      [
+        a csvw:Column ;
+        csvw:name "Attributes" ;
+        csvw:datatype "string" ;
+        csvw:required false ;
+        dc:description "Windows file attribute flags (decimal or 0x-prefixed hex)."
+      ]
+      [
+        a csvw:Column ;
+        csvw:name "Date Accessed" ;
+        csvw:datatype "string" ;
+        csvw:required false ;
+        dc:description "Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time."
+      ]
+      [
+        a csvw:Column ;
+        csvw:name "Run Count" ;
+        csvw:datatype "integer" ;
+        csvw:required false ;
+        dc:description "Number of times the file has been run/opened from Everything."
+      ]
+      [
+        a csvw:Column ;
+        csvw:name "Date Run" ;
+        csvw:datatype "string" ;
+        csvw:required false ;
+        dc:description "Timestamp of the last run; Windows FILETIME (decimal) or ISO 8601 date-time."
+      ]
+      [
+        a csvw:Column ;
+        csvw:name "Type" ;
+        csvw:datatype "string" ;
+        csvw:required false ;
+        dc:description "File type description or extension."
+      ]
+      [
+        a csvw:Column ;
+        csvw:name "Seen Date" ;
+        csvw:datatype "string" ;
+        csvw:required false ;
+        dc:description "Timestamp when the file record was observed/collected."
+      ]
+      [
+        a csvw:Column ;
+        csvw:name "Seen Host" ;
+        csvw:datatype "string" ;
+        csvw:required false ;
+        dc:description "Hostname or machine name where the file was observed."
+      ]
+      [
+        a csvw:Column ;
+        csvw:name "Seen User" ;
+        csvw:datatype "string" ;
+        csvw:required false ;
+        dc:description "Username of the user who observed/collected the record."
+      ]
+    )
+  ] .
