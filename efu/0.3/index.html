@@ -31,6 +31,57 @@
     .grid { display: grid; gap: 12px; grid-template-columns: 1fr; }
     @media (min-width: 840px) { .grid { grid-template-columns: 1fr 1fr; } }
     a { text-underline-offset: 2px; }
+
+    /* Top-level Tabs Styling */
+    .main-tabs {
+      display: flex;
+      border-bottom: 2px solid #ccc;
+      margin-bottom: 20px;
+    }
+    .main-tab-btn {
+      padding: 10px 20px;
+      border: 1px solid transparent;
+      border-bottom: none;
+      background: none;
+      cursor: pointer;
+      font-size: 1em;
+      border-radius: 8px 8px 0 0;
+      margin-bottom: -2px;
+      color: inherit;
+      opacity: 0.7;
+      font-weight: 500;
+    }
+    .main-tab-btn:hover {
+      opacity: 1;
+      background-color: rgba(127,127,127,0.1);
+    }
+    .main-tab-btn.active {
+      opacity: 1;
+      border-color: #ccc;
+      background-color: transparent;
+      border-bottom: 2px solid canvas; /* Match background color dynamically */
+      font-weight: bold;
+    }
+    .main-tab-content {
+      display: none;
+    }
+    .main-tab-content.show {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .main-tabs { border-color: #444; }
+      .main-tab-btn.active {
+        border-color: #444;
+        border-bottom-color: #1a1a1a; /* Approximate dark mode bg, or use canvas */
+      }
+    }
   </style>
 </head>
 
@@ -40,84 +91,129 @@
     <h1>EFU CSVW Schema v0.3</h1>
     <p class="muted">
       Everything の EFU（CSV ファイル一覧）を <strong>CSVW / JSON-LD</strong> として記述するスキーマ定義（v0.3 / draft）。
-      <br>
-      v0.2 の定義に加え、観測情報（メタデータ）を記録するためのオプショナルカラム <strong>Seen Date, Seen Host, Seen User</strong> を含みます。
     </p>
   </header>
 
-  <section class="box">
-    <h2>識別子（概念 URI）</h2>
-    <p>
-      このページ（<code>https://schema.moukaeritai.work/efu/0.3</code>）は、
-      <strong>スキーマ資源そのもの</strong>（記述対象）の概念 URI です。
-      具体表現（JSON / Turtle / RDF/XML）は下記リンクから取得できます。
+  <!-- Top-Level Tabs -->
+  <div class="main-tabs">
+    <button onclick="switchMainTab(event, 'tab-overview')" class="main-tab-btn active">Main (Overview)</button>
+    <button onclick="switchMainTab(event, 'tab-jsonld', 'schema.jsonld', 'json')" class="main-tab-btn">JSON-LD</button>
+    <button onclick="switchMainTab(event, 'tab-turtle', 'schema.ttl', 'turtle')" class="main-tab-btn">Turtle</button>
+    <button onclick="switchMainTab(event, 'tab-rdf', 'schema.rdf', 'xml')" class="main-tab-btn">RDF/XML</button>
+  </div>
+
+  <!-- Tab: Overview (Main) -->
+  <div id="tab-overview" class="main-tab-content show">
+    <p class="muted">
+      v0.2 の定義に加え、観測情報（メタデータ）を記録するためのオプショナルカラム <strong>Seen Date, Seen Host, Seen User</strong> を含みます。
     </p>
-  </section>
 
-  <section class="box">
-    <h2>ダウンロード（具体表現）</h2>
-    <div class="grid">
-      <div>
-        <h3>スキーマ本体</h3>
-        <ul>
-          <li><a href="./schema.jsonld">schema.jsonld</a> <span class="muted">(application/ld+json または application/json)</span></li>
-          <li><a href="./schema.ttl">schema.ttl</a> <span class="muted">(text/turtle)</span></li>
-          <li><a href="./schema.rdf">schema.rdf</a> <span class="muted">(application/rdf+xml)</span></li>
-        </ul>
+    <section class="box">
+      <h2>識別子（概念 URI）</h2>
+      <p>
+        このページ（<code>https://schema.moukaeritai.work/efu/0.3</code>）は、
+        <strong>スキーマ資源そのもの</strong>（記述対象）の概念 URI です。
+        上部タブから各形式（JSON-LD / Turtle / RDF/XML）の定義を直接閲覧できます。
+      </p>
+    </section>
+
+    <section class="box">
+      <h2>ダウンロード</h2>
+      <div class="grid">
+        <div>
+          <h3>スキーマ本体</h3>
+          <ul>
+            <li><a href="./schema.jsonld">schema.jsonld</a> <span class="muted">(application/ld+json)</span></li>
+            <li><a href="./schema.ttl">schema.ttl</a> <span class="muted">(text/turtle)</span></li>
+            <li><a href="./schema.rdf">schema.rdf</a> <span class="muted">(application/rdf+xml)</span></li>
+          </ul>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="box">
-    <h2>スキーマ内容プレビュー</h2>
-    <div class="tabs">
-      <button onclick="switchTab(event, 'preview-jsonld', 'schema.jsonld', 'json')" class="tab-btn active">JSON-LD</button>
-      <button onclick="switchTab(event, 'preview-ttl', 'schema.ttl', 'turtle')" class="tab-btn">Turtle</button>
-      <button onclick="switchTab(event, 'preview-rdf', 'schema.rdf', 'xml')" class="tab-btn">RDF/XML</button>
-    </div>
-    <div id="preview-jsonld" class="tab-content show">
-      <pre><code class="language-json">Loading...</code></pre>
-    </div>
-    <div id="preview-ttl" class="tab-content">
-      <pre><code class="language-turtle"></code></pre>
-    </div>
-    <div id="preview-rdf" class="tab-content">
-      <pre><code class="language-markup"></code></pre>
-    </div>
-  </section>
+    <section class="box">
+      <h2>メタデータ</h2>
+      <ul>
+        <li>Version: <code>0.3</code> (draft)</li>
+        <li>Release date: <code>2025-12-19</code></li>
+        <li>Creator: Takashi Sasaki (<a href="https://x.com/TakashiSasaki">https://x.com/TakashiSasaki</a>)</li>
+      </ul>
+    </section>
 
-  <section class="box">
-    <h2>メタデータ</h2>
-    <ul>
-      <li>Version: <code>0.3</code> (draft)</li>
-      <li>Release date: <code>2025-12-19</code></li>
-      <li>Creator: Takashi Sasaki (<a href="https://x.com/TakashiSasaki">https://x.com/TakashiSasaki</a>)</li>
-    </ul>
-  </section>
+    <section class="box">
+      <h2>取得例（CLI）</h2>
+      <p class="muted">
+        サーバが Content Negotiation（Accept による表現切替）を提供している場合の例です。
+      </p>
 
-  <script>
-    async function switchTab(event, tabId, filename, lang) {
-      // Toggle tab buttons
-      const buttons = document.querySelectorAll('.tab-btn');
-      buttons.forEach(btn => btn.classList.remove('active'));
-      event.currentTarget.classList.add('active');
+      <h3>JSON(-LD)</h3>
+      <pre><code>curl -H "Accept: application/ld+json" https://schema.moukaeritai.work/efu/0.3</code></pre>
 
-      // Toggle tab content
-      const contents = document.querySelectorAll('.tab-content');
-      contents.forEach(content => content.classList.remove('show'));
-      const targetContent = document.getElementById(tabId);
-      targetContent.classList.add('show');
+      <h3>Turtle</h3>
+      <pre><code>curl -H "Accept: text/turtle" https://schema.moukaeritai.work/efu/0.3</code></pre>
 
+      <h3>RDF/XML</h3>
+      <pre><code>curl -H "Accept: application/rdf+xml" https://schema.moukaeritai.work/efu/0.3</code></pre>
+    </section>
+
+    <section class="box">
+      <h2>関連</h2>
+      <ul>
+        <li>Previous version: <a href="../0.2/">v0.2</a></li>
+        <li>Latest (alias): <a href="../latest.json">/efu/latest.json</a> <span class="muted">(可変)</span></li>
+        <li>CSVW Namespace: <a href="https://www.w3.org/ns/csvw">https://www.w3.org/ns/csvw</a></li>
+      </ul>
+    </section>
+  </div>
+
+  <!-- Tab: JSON-LD -->
+  <div id="tab-jsonld" class="main-tab-content">
+    <pre><code class="language-json">Loading...</code></pre>
+  </div>
+
+  <!-- Tab: Turtle -->
+  <div id="tab-turtle" class="main-tab-content">
+    <pre><code class="language-turtle">Loading...</code></pre>
+  </div>
+
+  <!-- Tab: RDF/XML -->
+  <div id="tab-rdf" class="main-tab-content">
+    <pre><code class="language-markup">Loading...</code></pre>
+  </div>
+
+  <footer class="muted" style="margin-top: 18px;">
+    <p>
+      このページは人間可読の案内ページです。スキーマの同一性は概念 URI（本ページ URL）で表し、
+      具体表現は <code>schema.jsonld</code> / <code>schema.ttl</code> / <code>schema.rdf</code> として提供します。
+    </p>
+  </footer>
+</main>
+
+<script>
+  async function switchMainTab(event, tabId, filename = null, lang = null) {
+    // 1. Activate Button
+    const buttons = document.querySelectorAll('.main-tab-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+
+    // 2. Show Content
+    const contents = document.querySelectorAll('.main-tab-content');
+    contents.forEach(content => content.classList.remove('show'));
+    const targetContent = document.getElementById(tabId);
+    targetContent.classList.add('show');
+
+    // 3. Load Content (if needed)
+    if (filename && lang) {
       const codeElem = targetContent.querySelector('code');
-      
-      // Load content if not already loaded
-      if (!codeElem.textContent || codeElem.textContent === 'Loading...') {
+      // Simple check to avoid re-fetching if already loaded (unless error)
+      if (!codeElem.dataset.loaded) {
         codeElem.textContent = 'Loading...';
         try {
           const response = await fetch(filename);
           if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
           const text = await response.text();
           codeElem.textContent = text;
+          codeElem.dataset.loaded = "true";
           
           const prismLang = lang === 'xml' ? 'markup' : lang;
           codeElem.className = `language-${prismLang}`;
@@ -129,103 +225,12 @@
         }
       }
     }
-    
-    // Initial load
-    window.addEventListener('DOMContentLoaded', () => {
-      const firstTab = document.querySelector('.tab-btn.active');
-      if (firstTab) {
-        // Trigger initial fetch manually to match the active tab
-        switchTab({ currentTarget: firstTab }, 'preview-jsonld', 'schema.jsonld', 'json');
-      }
-    });
-  </script>
+  }
+</script>
 
-  <!-- Prism.js Core and Components -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-turtle.min.js"></script>
-
-  <style>
-    .tabs {
-      display: flex;
-      border-bottom: 2px solid #ccc;
-      margin-bottom: 0;
-    }
-    .tab-btn {
-      padding: 8px 16px;
-      border: 1px solid transparent;
-      border-bottom: none;
-      background: none;
-      cursor: pointer;
-      font-size: 0.9em;
-      border-radius: 6px 6px 0 0;
-      margin-bottom: -2px;
-      color: inherit;
-      opacity: 0.7;
-    }
-    .tab-btn:hover {
-      opacity: 1;
-      background-color: rgba(127,127,127,0.1);
-    }
-    .tab-btn.active {
-      opacity: 1;
-      border-color: #ccc;
-      background-color: transparent;
-      border-bottom: 2px solid #fff; /* Match background color */
-      font-weight: bold;
-    }
-    .tab-content {
-      display: none;
-      padding-top: 12px;
-    }
-    .tab-content.show {
-      display: block;
-    }
-    @media (prefers-color-scheme: dark) {
-      .tabs { border-color: #444; }
-      .tab-btn.active {
-        border-color: #444;
-        border-bottom-color: #000; /* Match dark background */
-      }
-    }
-  </style>
-
-  <section class="box">
-    <h2>取得例（CLI）</h2>
-    <p class="muted">
-      サーバが Content Negotiation（Accept による表現切替）を提供している場合の例です。
-    </p>
-
-    <h3>JSON(-LD)</h3>
-    <pre><code>curl -H "Accept: application/ld+json" https://schema.moukaeritai.work/efu/0.3</code></pre>
-
-    <h3>Turtle</h3>
-    <pre><code>curl -H "Accept: text/turtle" https://schema.moukaeritai.work/efu/0.3</code></pre>
-
-    <h3>RDF/XML</h3>
-    <pre><code>curl -H "Accept: application/rdf+xml" https://schema.moukaeritai.work/efu/0.3</code></pre>
-
-    <h3>Direct</h3>
-    <pre><code>curl https://schema.moukaeritai.work/efu/0.3/schema.jsonld
-curl https://schema.moukaeritai.work/efu/0.3/schema.ttl
-curl https://schema.moukaeritai.work/efu/0.3/schema.rdf</code></pre>
-  </section>
-
-  <section class="box">
-    <h2>関連</h2>
-    <ul>
-      <li>Previous version: <a href="../0.2/">v0.2</a></li>
-      <li>Latest (alias): <a href="../latest.json">/efu/latest.json</a> <span class="muted">(可変)</span></li>
-      <li>CSVW Namespace: <a href="https://www.w3.org/ns/csvw">https://www.w3.org/ns/csvw</a></li>
-    </ul>
-  </section>
-
-  <footer class="muted" style="margin-top: 18px;">
-    <p>
-      このページは人間可読の案内ページです。スキーマの同一性は概念 URI（本ページ URL）で表し、
-      具体表現は <code>schema.jsonld</code> / <code>schema.ttl</code> / <code>schema.rdf</code> として提供します。
-    </p>
-  </footer>
-</main>
+<!-- Prism.js Core and Components -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-turtle.min.js"></script>
 </body>
 </html>
