@@ -66,6 +66,16 @@
   </section>
 
   <section class="box">
+    <h2>スキーマ内容プレビュー</h2>
+    <div style="margin-bottom: 12px;">
+      <button onclick="loadSchema('schema.jsonld', 'json')" class="btn">JSON-LD</button>
+      <button onclick="loadSchema('schema.ttl', 'turtle')" class="btn">Turtle</button>
+      <button onclick="loadSchema('schema.rdf', 'xml')" class="btn">RDF/XML</button>
+    </div>
+    <pre><code id="schema-content">（ボタンを押すとここにスキーマ定義が表示されます）</code></pre>
+  </section>
+
+  <section class="box">
     <h2>メタデータ</h2>
     <ul>
       <li>Version: <code>0.3</code> (draft)</li>
@@ -73,6 +83,52 @@
       <li>Creator: Takashi Sasaki (<a href="https://x.com/TakashiSasaki">https://x.com/TakashiSasaki</a>)</li>
     </ul>
   </section>
+
+  <script>
+    async function loadSchema(filename, lang) {
+      const display = document.getElementById('schema-content');
+      display.textContent = 'Loading...';
+      try {
+        const response = await fetch(filename);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const text = await response.text();
+        display.textContent = text;
+        display.className = `language-${lang}`;
+      } catch (e) {
+        display.textContent = 'Error loading schema: ' + e.message;
+      }
+    }
+    
+    // Default load
+    loadSchema('schema.jsonld', 'json');
+  </script>
+
+  <style>
+    .btn {
+      background-color: #eee;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 6px 12px;
+      margin-right: 8px;
+      cursor: pointer;
+      font-size: 0.9em;
+    }
+    .btn:hover {
+      background-color: #ddd;
+    }
+    @media (prefers-color-scheme: dark) {
+      .btn {
+        background-color: #333;
+        border-color: #555;
+        color: #eee;
+      }
+      .btn:hover {
+        background-color: #444;
+      }
+    }
+  </style>
 
   <section class="box">
     <h2>取得例（CLI）</h2>
