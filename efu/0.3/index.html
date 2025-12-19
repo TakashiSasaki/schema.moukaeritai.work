@@ -32,6 +32,53 @@
     @media (min-width: 840px) { .grid { grid-template-columns: 1fr 1fr; } }
     a { text-underline-offset: 2px; }
 
+    /* URI Container Styling */
+    .uri-container {
+      display: flex;
+      align-items: center;
+      background-color: rgba(127,127,127,0.1);
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(127,127,127,0.2);
+    }
+    .uri-label {
+      font-weight: bold;
+      margin-right: 12px;
+      color: #666;
+    }
+    #schema-uri {
+      flex-grow: 1;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Noto Sans Mono", monospace;
+      word-break: break-all;
+    }
+    .copy-btn {
+      margin-left: 12px;
+      padding: 6px 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: #fff;
+      cursor: pointer;
+      font-size: 0.9em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background-color 0.2s;
+    }
+    .copy-btn:hover { background-color: #f0f0f0; }
+    .copy-btn:active { background-color: #e0e0e0; transform: translateY(1px); }
+
+    @media (prefers-color-scheme: dark) {
+      .uri-label { color: #aaa; }
+      .copy-btn {
+        background-color: #333;
+        border-color: #555;
+        color: #eee;
+      }
+      .copy-btn:hover { background-color: #444; }
+      .copy-btn:active { background-color: #222; }
+    }
+
     /* Top-level Tabs Styling */
     .main-tabs {
       display: flex;
@@ -93,6 +140,13 @@
       Everything の EFU（CSV ファイル一覧）を <strong>CSVW / JSON-LD</strong> として記述するスキーマ定義（v0.3 / draft）。
     </p>
   </header>
+
+  <!-- Schema URI & Copy Button -->
+  <div class="uri-container">
+    <span class="uri-label">Schema URI:</span>
+    <code id="schema-uri">https://schema.moukaeritai.work/efu/0.3</code>
+    <button onclick="copyUri()" class="copy-btn" title="Copy URI to clipboard">📋 Copy</button>
+  </div>
 
   <!-- Top-Level Tabs -->
   <div class="main-tabs">
@@ -190,6 +244,21 @@
 </main>
 
 <script>
+  function copyUri() {
+    const uriText = document.getElementById('schema-uri').textContent;
+    navigator.clipboard.writeText(uriText).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '✅ Copied!';
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+      }, 2000);
+    }).catch(err => {
+      console.error('Failed to copy: ', err);
+      alert('Failed to copy URI');
+    });
+  }
+
   async function switchMainTab(event, tabId, filename = null, lang = null) {
     // 1. Activate Button
     const buttons = document.querySelectorAll('.main-tab-btn');
