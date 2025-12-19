@@ -11,7 +11,7 @@
   <link rel="canonical" href="https://schema.moukaeritai.work/efu/0.2" />
 
   <!-- Links to concrete representations -->
-  <link rel="alternate" type="application/ld+json" href="./schema.json" title="JSON(-LD) representation" />
+  <link rel="alternate" type="application/ld+json" href="./schema.jsonld" title="JSON(-LD) representation" />
   <link rel="alternate" type="text/turtle" href="./schema.ttl" title="Turtle representation" />
   <link rel="alternate" type="application/rdf+xml" href="./schema.rdf" title="RDF/XML representation" />
 
@@ -57,7 +57,7 @@
       <div>
         <h3>スキーマ本体</h3>
         <ul>
-          <li><a href="./schema.json">schema.json</a> <span class="muted">(application/ld+json または application/json)</span></li>
+          <li><a href="./schema.jsonld">schema.jsonld</a> <span class="muted">(application/ld+json または application/json)</span></li>
           <li><a href="./schema.ttl">schema.ttl</a> <span class="muted">(text/turtle)</span></li>
           <li><a href="./schema.rdf">schema.rdf</a> <span class="muted">(application/rdf+xml)</span></li>
         </ul>
@@ -90,7 +90,7 @@
     <pre><code>curl -H "Accept: application/rdf+xml" https://schema.moukaeritai.work/efu/0.2</code></pre>
 
     <h3>Direct</h3>
-    <pre><code>curl https://schema.moukaeritai.work/efu/0.2/schema.json
+    <pre><code>curl https://schema.moukaeritai.work/efu/0.2/schema.jsonld
 curl https://schema.moukaeritai.work/efu/0.2/schema.ttl
 curl https://schema.moukaeritai.work/efu/0.2/schema.rdf</code></pre>
   </section>
@@ -107,7 +107,7 @@ curl https://schema.moukaeritai.work/efu/0.2/schema.rdf</code></pre>
   <footer class="muted" style="margin-top: 18px;">
     <p>
       このページは人間可読の案内ページです。スキーマの同一性は概念 URI（本ページ URL）で表し、
-      具体表現は <code>schema.json</code> / <code>schema.ttl</code> / <code>schema.rdf</code> として提供します。
+      具体表現は <code>schema.jsonld</code> / <code>schema.ttl</code> / <code>schema.rdf</code> として提供します。
     </p>
   </footer>
 </main>
