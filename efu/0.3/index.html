@@ -70,12 +70,20 @@
 
   <section class="box">
     <h2>スキーマ内容プレビュー</h2>
-    <div style="margin-bottom: 12px;">
-      <button onclick="loadSchema('schema.jsonld', 'json')" class="btn">JSON-LD</button>
-      <button onclick="loadSchema('schema.ttl', 'turtle')" class="btn">Turtle</button>
-      <button onclick="loadSchema('schema.rdf', 'xml')" class="btn">RDF/XML</button>
+    <div class="tabs">
+      <button onclick="switchTab(event, 'preview-jsonld', 'schema.jsonld', 'json')" class="tab-btn active">JSON-LD</button>
+      <button onclick="switchTab(event, 'preview-ttl', 'schema.ttl', 'turtle')" class="tab-btn">Turtle</button>
+      <button onclick="switchTab(event, 'preview-rdf', 'schema.rdf', 'xml')" class="tab-btn">RDF/XML</button>
     </div>
-    <pre><code id="schema-content">（ボタンを押すとここにスキーマ定義が表示されます）</code></pre>
+    <div id="preview-jsonld" class="tab-content show">
+      <pre><code class="language-json">Loading...</code></pre>
+    </div>
+    <div id="preview-ttl" class="tab-content">
+      <pre><code class="language-turtle"></code></pre>
+    </div>
+    <div id="preview-rdf" class="tab-content">
+      <pre><code class="language-markup"></code></pre>
+    </div>
   </section>
 
   <section class="box">
@@ -88,35 +96,48 @@
   </section>
 
   <script>
-    async function loadSchema(filename, lang) {
-      const display = document.getElementById('schema-content');
-      display.textContent = 'Loading...';
-      // Reset class name to ensure Prism re-highlights correctly
-      display.className = ''; 
+    async function switchTab(event, tabId, filename, lang) {
+      // Toggle tab buttons
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      // Toggle tab content
+      const contents = document.querySelectorAll('.tab-content');
+      contents.forEach(content => content.classList.remove('show'));
+      const targetContent = document.getElementById(tabId);
+      targetContent.classList.add('show');
+
+      const codeElem = targetContent.querySelector('code');
       
-      try {
-        const response = await fetch(filename);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+      // Load content if not already loaded
+      if (!codeElem.textContent || codeElem.textContent === 'Loading...') {
+        codeElem.textContent = 'Loading...';
+        try {
+          const response = await fetch(filename);
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          const text = await response.text();
+          codeElem.textContent = text;
+          
+          const prismLang = lang === 'xml' ? 'markup' : lang;
+          codeElem.className = `language-${prismLang}`;
+          if (window.Prism) {
+            Prism.highlightElement(codeElem);
+          }
+        } catch (e) {
+          codeElem.textContent = 'Error loading schema: ' + e.message;
         }
-        const text = await response.text();
-        display.textContent = text;
-        
-        // Map common language names to Prism classes
-        const prismLang = lang === 'xml' ? 'markup' : lang;
-        display.className = `language-${prismLang}`;
-        
-        // Apply syntax highlighting
-        if (window.Prism) {
-          Prism.highlightElement(display);
-        }
-      } catch (e) {
-        display.textContent = 'Error loading schema: ' + e.message;
       }
     }
     
-    // Default load
-    loadSchema('schema.jsonld', 'json');
+    // Initial load
+    window.addEventListener('DOMContentLoaded', () => {
+      const firstTab = document.querySelector('.tab-btn.active');
+      if (firstTab) {
+        // Trigger initial fetch manually to match the active tab
+        switchTab({ currentTarget: firstTab }, 'preview-jsonld', 'schema.jsonld', 'json');
+      }
+    });
   </script>
 
   <!-- Prism.js Core and Components -->
@@ -125,26 +146,46 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-turtle.min.js"></script>
 
   <style>
-    .btn {
-      background-color: #eee;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 6px 12px;
-      margin-right: 8px;
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #ccc;
+      margin-bottom: 0;
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      border: 1px solid transparent;
+      border-bottom: none;
+      background: none;
       cursor: pointer;
       font-size: 0.9em;
+      border-radius: 6px 6px 0 0;
+      margin-bottom: -2px;
+      color: inherit;
+      opacity: 0.7;
     }
-    .btn:hover {
-      background-color: #ddd;
+    .tab-btn:hover {
+      opacity: 1;
+      background-color: rgba(127,127,127,0.1);
+    }
+    .tab-btn.active {
+      opacity: 1;
+      border-color: #ccc;
+      background-color: transparent;
+      border-bottom: 2px solid #fff; /* Match background color */
+      font-weight: bold;
+    }
+    .tab-content {
+      display: none;
+      padding-top: 12px;
+    }
+    .tab-content.show {
+      display: block;
     }
     @media (prefers-color-scheme: dark) {
-      .btn {
-        background-color: #333;
-        border-color: #555;
-        color: #eee;
-      }
-      .btn:hover {
-        background-color: #444;
+      .tabs { border-color: #444; }
+      .tab-btn.active {
+        border-color: #444;
+        border-bottom-color: #000; /* Match dark background */
       }
     }
   </style>
