@@ -1,0 +1,83 @@
+{
+  "@context": [
+    "https://schema.moukaeritai.work/efu/0.2/context/base.jsonld",
+    {
+      "foaf": "http://xmlns.com/foaf/0.1/"
+    }
+  ],
+
+  "@id": "https://schema.moukaeritai.work/efu/0.2",
+  "@type": "Table",
+
+  "dc:hasVersion": "0.2",
+  "dc:issued": "2025-12-19",
+
+  "dc:creator": {
+    "@type": "foaf:Person",
+    "foaf:name": "Takashi Sasaki",
+    "foaf:homepage": "https://x.com/TakashiSasaki"
+  },
+
+  "dc:description": "Draft CSVW schema for Everything EFU file lists (CSV with header). Version 0.2 includes optional columns.",
+
+  "url": "filelist.efu",
+
+  "tableSchema": {
+    "columns": [
+      {
+        "name": "Filename",
+        "datatype": "string",
+        "required": true,
+        "dc:description": "Path or filename (usually absolute Windows path)."
+      },
+      {
+        "name": "Size",
+        "datatype": "integer",
+        "required": false,
+        "dc:description": "File size in bytes."
+      },
+      {
+        "name": "Date Modified",
+        "datatype": "string",
+        "required": false,
+        "dc:description": "Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time."
+      },
+      {
+        "name": "Date Created",
+        "datatype": "string",
+        "required": false,
+        "dc:description": "Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time."
+      },
+      {
+        "name": "Attributes",
+        "datatype": "string",
+        "required": false,
+        "dc:description": "Windows file attribute flags (decimal or 0x-prefixed hex)."
+      },
+      {
+        "name": "Date Accessed",
+        "datatype": "string",
+        "required": false,
+        "dc:description": "Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time."
+      },
+      {
+        "name": "Run Count",
+        "datatype": "integer",
+        "required": false,
+        "dc:description": "Number of times the file has been run/opened from Everything."
+      },
+      {
+        "name": "Date Run",
+        "datatype": "string",
+        "required": false,
+        "dc:description": "Timestamp of the last run; Windows FILETIME (decimal) or ISO 8601 date-time."
+      },
+      {
+        "name": "Type",
+        "datatype": "string",
+        "required": false,
+        "dc:description": "File type description or extension."
+      }
+    ]
+  }
+}

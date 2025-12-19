@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>EFU CSVW Schema v0.2 — schema.moukaeritai.work</title>
+  <meta name="description" content="Everything EFU (CSV) file list schema described with CSVW / JSON-LD. Version 0.2 (draft) includes optional columns." />
+
+  <!-- Canonical identity (concept URI) -->
+  <link rel="canonical" href="https://schema.moukaeritai.work/efu/0.2" />
+
+  <!-- Links to concrete representations -->
+  <link rel="alternate" type="application/ld+json" href="./schema.json" title="JSON(-LD) representation" />
+  <link rel="alternate" type="text/turtle" href="./schema.ttl" title="Turtle representation" />
+  <link rel="alternate" type="application/rdf+xml" href="./schema.rdf" title="RDF/XML representation" />
+
+  <!-- CSVW/JSON-LD context (dictionary) -->
+  <link rel="alternate" type="application/ld+json" href="./context/base.jsonld" title="JSON-LD context (base)" />
+
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif; line-height: 1.6; margin: 0; }
+    main { max-width: 920px; padding: 24px; margin: 0 auto; }
+    header { margin-bottom: 18px; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Noto Sans Mono", monospace; }
+    pre { padding: 12px; overflow: auto; border: 1px solid rgba(127,127,127,.35); border-radius: 8px; }
+    .box { border: 1px solid rgba(127,127,127,.35); border-radius: 12px; padding: 14px 16px; margin: 14px 0; }
+    ul { margin-top: 8px; }
+    .muted { opacity: .8; }
+    .grid { display: grid; gap: 12px; grid-template-columns: 1fr; }
+    @media (min-width: 840px) { .grid { grid-template-columns: 1fr 1fr; } }
+    a { text-underline-offset: 2px; }
+  </style>
+</head>
+
+<body>
+<main>
+  <header>
+    <h1>EFU CSVW Schema v0.2</h1>
+    <p class="muted">
+      Everything の EFU（CSV ファイル一覧）を <strong>CSVW / JSON-LD</strong> として記述するスキーマ定義（v0.2 / draft）。
+      <br>
+      v0.1 の基本カラムに加え、<strong>Date Accessed, Run Count, Date Run, Type</strong> 等の追加カラム定義を含みます。
+    </p>
+  </header>
+
+  <section class="box">
+    <h2>識別子（概念 URI）</h2>
+    <p>
+      このページ（<code>https://schema.moukaeritai.work/efu/0.2</code>）は、
+      <strong>スキーマ資源そのもの</strong>（記述対象）の概念 URI です。
+      具体表現（JSON / Turtle / RDF/XML）は下記リンクから取得できます。
+    </p>
+  </section>
+
+  <section class="box">
+    <h2>ダウンロード（具体表現）</h2>
+    <div class="grid">
+      <div>
+        <h3>スキーマ本体</h3>
+        <ul>
+          <li><a href="./schema.json">schema.json</a> <span class="muted">(application/ld+json または application/json)</span></li>
+          <li><a href="./schema.ttl">schema.ttl</a> <span class="muted">(text/turtle)</span></li>
+          <li><a href="./schema.rdf">schema.rdf</a> <span class="muted">(application/rdf+xml)</span></li>
+        </ul>
+      </div>
+      <div>
+        <h3>JSON-LD Context（辞書）</h3>
+        <ul>
+          <li><a href="./context/base.jsonld">context/base.jsonld</a> <span class="muted">(application/ld+json)</span></li>
+        </ul>
+        <p class="muted">
+          注: context は JSON-LD 処理系が <code>@context</code> から実際に取得する可能性があるため、
+          URL で取得可能な資源として公開します。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="box">
+    <h2>メタデータ</h2>
+    <ul>
+      <li>Version: <code>0.2</code> (draft)</li>
+      <li>Release date: <code>2025-12-19</code></li>
+      <li>Creator: Takashi Sasaki (<a href="https://x.com/TakashiSasaki">https://x.com/TakashiSasaki</a>)</li>
+    </ul>
+  </section>
+
+  <section class="box">
+    <h2>取得例（CLI）</h2>
+    <p class="muted">
+      サーバが Content Negotiation（Accept による表現切替）を提供している場合の例です。
+    </p>
+
+    <h3>JSON(-LD)</h3>
+    <pre><code>curl -H "Accept: application/ld+json" https://schema.moukaeritai.work/efu/0.2</code></pre>
+
+    <h3>Turtle</h3>
+    <pre><code>curl -H "Accept: text/turtle" https://schema.moukaeritai.work/efu/0.2</code></pre>
+
+    <h3>RDF/XML</h3>
+    <pre><code>curl -H "Accept: application/rdf+xml" https://schema.moukaeritai.work/efu/0.2</code></pre>
+
+    <h3>Direct</h3>
+    <pre><code>curl https://schema.moukaeritai.work/efu/0.2/schema.json
+curl https://schema.moukaeritai.work/efu/0.2/schema.ttl
+curl https://schema.moukaeritai.work/efu/0.2/schema.rdf</code></pre>
+  </section>
+
+  <section class="box">
+    <h2>関連</h2>
+    <ul>
+      <li>Previous version: <a href="../0.1/">v0.1</a></li>
+      <li>Latest (alias): <a href="../latest.json">/efu/latest.json</a> <span class="muted">(可変)</span></li>
+      <li>CSVW Namespace: <a href="https://www.w3.org/ns/csvw">https://www.w3.org/ns/csvw</a></li>
+    </ul>
+  </section>
+
+  <footer class="muted" style="margin-top: 18px;">
+    <p>
+      このページは人間可読の案内ページです。スキーマの同一性は概念 URI（本ページ URL）で表し、
+      具体表現は <code>schema.json</code> / <code>schema.ttl</code> / <code>schema.rdf</code> として提供します。
+    </p>
+  </footer>
+</main>
+</body>
+</html>

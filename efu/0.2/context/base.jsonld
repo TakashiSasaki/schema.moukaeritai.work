@@ -1,0 +1,27 @@
+{
+  "@context": {
+    "csvw": "http://www.w3.org/ns/csvw#",
+    "dc": "http://purl.org/dc/terms/",
+
+    "Table": "csvw:Table",
+
+    "url": {
+      "@id": "csvw:url",
+      "@type": "@id"
+    },
+
+    "tableSchema": {
+      "@id": "csvw:tableSchema",
+      "@type": "@id"
+    },
+
+    "columns": {
+      "@id": "csvw:columns",
+      "@container": "@list"
+    },
+
+    "name": "csvw:name",
+    "datatype": "csvw:datatype",
+    "required": "csvw:required"
+  }
+}
