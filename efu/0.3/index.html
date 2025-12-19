@@ -15,6 +15,9 @@
   <link rel="alternate" type="text/turtle" href="./schema.ttl" title="Turtle representation" />
   <link rel="alternate" type="application/rdf+xml" href="./schema.rdf" title="RDF/XML representation" />
 
+  <!-- Prism.js for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+
   <style>
     :root { color-scheme: light dark; }
     body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif; line-height: 1.6; margin: 0; }
@@ -88,6 +91,9 @@
     async function loadSchema(filename, lang) {
       const display = document.getElementById('schema-content');
       display.textContent = 'Loading...';
+      // Reset class name to ensure Prism re-highlights correctly
+      display.className = ''; 
+      
       try {
         const response = await fetch(filename);
         if (!response.ok) {
@@ -95,7 +101,15 @@
         }
         const text = await response.text();
         display.textContent = text;
-        display.className = `language-${lang}`;
+        
+        // Map common language names to Prism classes
+        const prismLang = lang === 'xml' ? 'markup' : lang;
+        display.className = `language-${prismLang}`;
+        
+        // Apply syntax highlighting
+        if (window.Prism) {
+          Prism.highlightElement(display);
+        }
       } catch (e) {
         display.textContent = 'Error loading schema: ' + e.message;
       }
@@ -104,6 +118,11 @@
     // Default load
     loadSchema('schema.jsonld', 'json');
   </script>
+
+  <!-- Prism.js Core and Components -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-turtle.min.js"></script>
 
   <style>
     .btn {
