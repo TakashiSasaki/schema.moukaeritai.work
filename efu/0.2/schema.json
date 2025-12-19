@@ -1,10 +1,30 @@
 {
-  "@context": [
-    "https://schema.moukaeritai.work/efu/0.2/context/base.jsonld",
-    {
-      "foaf": "http://xmlns.com/foaf/0.1/"
-    }
-  ],
+  "@context": {
+    "csvw": "http://www.w3.org/ns/csvw#",
+    "dc": "http://purl.org/dc/terms/",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+
+    "Table": "csvw:Table",
+
+    "url": {
+      "@id": "csvw:url",
+      "@type": "@id"
+    },
+
+    "tableSchema": {
+      "@id": "csvw:tableSchema",
+      "@type": "@id"
+    },
+
+    "columns": {
+      "@id": "csvw:columns",
+      "@container": "@list"
+    },
+
+    "name": "csvw:name",
+    "datatype": "csvw:datatype",
+    "required": "csvw:required"
+  },
 
   "@id": "https://schema.moukaeritai.work/efu/0.2",
   "@type": "Table",

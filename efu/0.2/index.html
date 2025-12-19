@@ -15,9 +15,6 @@
   <link rel="alternate" type="text/turtle" href="./schema.ttl" title="Turtle representation" />
   <link rel="alternate" type="application/rdf+xml" href="./schema.rdf" title="RDF/XML representation" />
 
-  <!-- CSVW/JSON-LD context (dictionary) -->
-  <link rel="alternate" type="application/ld+json" href="./context/base.jsonld" title="JSON-LD context (base)" />
-
   <style>
     :root { color-scheme: light dark; }
     body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif; line-height: 1.6; margin: 0; }
@@ -64,16 +61,6 @@
           <li><a href="./schema.ttl">schema.ttl</a> <span class="muted">(text/turtle)</span></li>
           <li><a href="./schema.rdf">schema.rdf</a> <span class="muted">(application/rdf+xml)</span></li>
         </ul>
-      </div>
-      <div>
-        <h3>JSON-LD Context（辞書）</h3>
-        <ul>
-          <li><a href="./context/base.jsonld">context/base.jsonld</a> <span class="muted">(application/ld+json)</span></li>
-        </ul>
-        <p class="muted">
-          注: context は JSON-LD 処理系が <code>@context</code> から実際に取得する可能性があるため、
-          URL で取得可能な資源として公開します。
-        </p>
       </div>
     </div>
   </section>
