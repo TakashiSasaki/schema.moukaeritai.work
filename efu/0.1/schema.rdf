@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:csvw="http://www.w3.org/ns/csvw#"
+  xmlns:dc="http://purl.org/dc/terms/"
+  xmlns:foaf="http://xmlns.com/foaf/0.1/">
+
+  <!-- EFU CSVW Schema v0.1 (conceptual resource) -->
+  <csvw:Table rdf:about="https://schema.moukaeritai.work/efu/0.1">
+
+    <dc:hasVersion>0.1</dc:hasVersion>
+    <dc:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#date">
+      2025-12-19
+    </dc:issued>
+
+    <dc:description>
+      Draft CSVW schema for Everything EFU file lists (CSV with header).
+    </dc:description>
+
+    <csvw:url rdf:resource="filelist.efu"/>
+
+    <!-- Creator (provenance) -->
+    <dc:creator>
+      <foaf:Person>
+        <foaf:name>Takashi Sasaki</foaf:name>
+        <foaf:homepage rdf:resource="https://x.com/TakashiSasaki"/>
+      </foaf:Person>
+    </dc:creator>
+
+    <!-- Table schema -->
+    <csvw:tableSchema>
+      <csvw:TableSchema>
+
+        <csvw:columns>
+          <rdf:Seq>
+
+            <rdf:li>
+              <csvw:Column>
+                <csvw:name>Filename</csvw:name>
+                <csvw:datatype>string</csvw:datatype>
+                <csvw:required rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">
+                  true
+                </csvw:required>
+                <dc:description>
+                  Path or filename (usually absolute Windows path).
+                </dc:description>
+              </csvw:Column>
+            </rdf:li>
+
+            <rdf:li>
+              <csvw:Column>
+                <csvw:name>Size</csvw:name>
+                <csvw:datatype>integer</csvw:datatype>
+                <csvw:required rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">
+                  false
+                </csvw:required>
+                <dc:description>
+                  File size in bytes.
+                </dc:description>
+              </csvw:Column>
+            </rdf:li>
+
+            <rdf:li>
+              <csvw:Column>
+                <csvw:name>Date Modified</csvw:name>
+                <csvw:datatype>string</csvw:datatype>
+                <csvw:required rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">
+                  false
+                </csvw:required>
+                <dc:description>
+                  Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time.
+                </dc:description>
+              </csvw:Column>
+            </rdf:li>
+
+            <rdf:li>
+              <csvw:Column>
+                <csvw:name>Date Created</csvw:name>
+                <csvw:datatype>string</csvw:datatype>
+                <csvw:required rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">
+                  false
+                </csvw:required>
+                <dc:description>
+                  Timestamp; Windows FILETIME (decimal) or ISO 8601 date-time.
+                </dc:description>
+              </csvw:Column>
+            </rdf:li>
+
+            <rdf:li>
+              <csvw:Column>
+                <csvw:name>Attributes</csvw:name>
+                <csvw:datatype>string</csvw:datatype>
+                <csvw:required rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">
+                  false
+                </csvw:required>
+                <dc:description>
+                  Windows file attribute flags (decimal or 0x-prefixed hex).
+                </dc:description>
+              </csvw:Column>
+            </rdf:li>
+
+          </rdf:Seq>
+        </csvw:columns>
+
+      </csvw:TableSchema>
+    </csvw:tableSchema>
+
+  </csvw:Table>
+
+</rdf:RDF>
