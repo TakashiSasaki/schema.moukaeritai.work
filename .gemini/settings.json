@@ -1,5 +1,5 @@
 {
   "context_files": [
-    "@AGENTS.md"
+    "AGENTS.md", "GEMINI.md", "README.md"
   ]
 }
