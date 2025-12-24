@@ -1,0 +1,238 @@
+openapi: 3.1.0
+info:
+  title: Everything HTTP Server - Binary Download API (download-only)
+  version: "1.0.0"
+  description: |
+    This OpenAPI document describes ONLY the binary file download behavior of Everything's built-in HTTP Server.
+
+    Scope:
+      - File content download via HTTP GET on a path that represents a Windows filesystem path.
+      - Optional HTTP Range requests (streaming / partial download).
+      - Optional HTTP Basic authentication (if configured in Everything).
+
+    Out of scope:
+      - Search endpoints (e.g., /?search=...&json=1), HTML/JSON result listing, UI resources.
+
+    Important notes (implementation behavior):
+      - File download can be disabled by unchecking "Allow file download" in Everything's HTTP Server options.
+        When disabled, file results are not linked in the HTML UI, and direct file download attempts will fail
+        (commonly resulting in 404 Not Found for real filesystem files). See implementation notes in the
+        operation description. (Official doc mentions this toggle; implementation enforces it.)
+servers:
+  - url: http://127.160.164.78:8000
+    description: Example server from the user's environment (bind+port).
+  - url: http://{host}:{port}
+    description: Generic Everything HTTP Server
+    variables:
+      host:
+        default: localhost
+      port:
+        default: "80"
+
+tags:
+  - name: BinaryDownload
+    description: Download file content (binary) from a path that encodes a Windows filesystem path.
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: |
+        HTTP Basic authentication. If Everything HTTP Server username/password are set,
+        unauthenticated requests may receive 401 with `WWW-Authenticate: Basic realm="Everything"`.
+  parameters:
+    RangeHeader:
+      name: Range
+      in: header
+      required: false
+      description: |
+        Optional HTTP Range header for partial download.
+        Everything HTTP Server supports range requests (streaming support).
+        Example: `Range: bytes=0-1023`
+      schema:
+        type: string
+      examples:
+        first1KiB:
+          summary: Download first 1024 bytes
+          value: bytes=0-1023
+        fromOffset:
+          summary: Download from byte offset to end
+          value: bytes=1048576-
+  responses:
+    Download200:
+      description: Full content
+      headers:
+        Content-Type:
+          description: |
+            MIME type. Implementation looks up Windows registry by file extension ("Content Type");
+            falls back to `application/octet-stream` if unknown.
+          schema:
+            type: string
+        Content-Length:
+          schema:
+            type: integer
+            format: int64
+        Last-Modified:
+          description: HTTP date of file last write time.
+          schema:
+            type: string
+        Accept-Ranges:
+          description: Present for downloadable files: `bytes`.
+          schema:
+            type: string
+      content:
+        application/octet-stream:
+          schema:
+            type: string
+            format: binary
+          examples:
+            note:
+              summary: Binary payload (omitted)
+              value: ""
+    Download206:
+      description: Partial content (Range response)
+      headers:
+        Content-Type:
+          schema:
+            type: string
+        Content-Length:
+          schema:
+            type: integer
+            format: int64
+        Last-Modified:
+          schema:
+            type: string
+        Accept-Ranges:
+          schema:
+            type: string
+        Content-Range:
+          description: |
+            Content range of the response.
+            Example: `Content-Range: bytes 0-1023/1234567`
+          schema:
+            type: string
+      content:
+        application/octet-stream:
+          schema:
+            type: string
+            format: binary
+    ErrorHTML:
+      description: Error response (HTML)
+      headers:
+        Content-Type:
+          schema:
+            type: string
+      content:
+        text/html:
+          schema:
+            type: string
+          examples:
+            notFound:
+              summary: 404 Not Found (HTML)
+              value: "<html><body><h1>404 Not Found</h1></body></html>"
+    Unauthorized:
+      description: 401 Unauthorized (HTTP Basic challenge)
+      headers:
+        WWW-Authenticate:
+          description: |
+            Basic realm challenge, e.g. `Basic realm="Everything"`.
+          schema:
+            type: string
+      content:
+        text/html:
+          schema:
+            type: string
+
+paths:
+  "/{escapedWindowsPath}":
+    get:
+      tags: [BinaryDownload]
+      summary: Download a file by encoded Windows path (binary)
+      description: |
+        Downloads the file content (binary) for a filesystem path encoded into the URL path.
+
+        How to form the request path (encoding rules):
+          1) Start from a Windows path, e.g.:
+               C:\Program Files\nodejs\node_modules\npm\docs\content\commands\npm-install-ci-test.md
+          2) Convert backslashes "\" to forward slashes "/":
+               C:/Program Files/nodejs/node_modules/npm/docs/content/commands/npm-install-ci-test.md
+          3) Percent-encode characters that are NOT "valid URL chars" per implementation.
+             Characters left as-is include:
+               - ALPHA / DIGIT
+               - '-', '_', '.', '!', '~', '*', "'", '(', ')'
+               - Non-ASCII bytes (>= 128) are treated as valid by implementation
+               - '/' is allowed when encoding a filename/path for the URL path
+             Notably, ':' is NOT in the allowed set, so drive colon becomes %3A.
+             Space becomes %20.
+
+        Two equivalent URL styles are typically accepted:
+          A) "Browser link style" (slashes are literal path separators):
+               /C%3A/Program%20Files/nodejs/.../npm-install-ci-test.md
+             This matches your observed DOM link format.
+
+          B) "Single-segment style" (internal slashes percent-encoded as %2F):
+               /C%3A%2FProgram%20Files%2Fnodejs%2F...%2Fnpm-install-ci-test.md
+             This is often easier for API client libraries and for OpenAPI tooling because it
+             avoids embedded '/' inside the path parameter value.
+
+        Server-side decoding and normalization (important for correct requests):
+          - The server percent-decodes the URL path (unescape).
+          - Then it converts '/' to '\' (after skipping an initial leading '/').
+          - Then it canonicalizes the path (removes ".." segments).
+          - Then it may remove a trailing backslash.
+          Therefore, paths containing ".." are normalized and should not be relied upon.
+
+        Download permission ("Allow file download"):
+          - Real filesystem file download is gated by the "Allow file download" setting.
+          - If disabled, the server will not serve real files; direct download attempts will fail
+            (commonly 404 Not Found for real files), although embedded/static resources may still be served.
+
+        Range requests:
+          - Range requests are supported. Use `Range: bytes=...`.
+          - Successful range requests yield 206 and include `Content-Range`.
+      security:
+        # Either no auth (if server has no user/pass), or Basic auth (if configured).
+        - {}
+        - basicAuth: []
+      parameters:
+        - name: escapedWindowsPath
+          in: path
+          required: true
+          description: |
+            Encoded Windows filesystem path (without the leading "/").
+
+            Recommended construction:
+              - Replace "\" with "/"
+              - Percent-encode all characters except:
+                  ALPHA / DIGIT / '-' / '_' / '.' / '!' / '~' / '*' / "'" / '(' / ')'
+                  and optionally '/' if you keep slash separators literal.
+              - Drive colon ':' must be percent-encoded (%3A), consistent with observed DOM links.
+
+            IMPORTANT:
+              - If your OpenAPI tooling cannot model embedded '/', encode those internal slashes as %2F.
+              - Example (single-segment style):
+                  C%3A%2FProgram%20Files%2Fnodejs%2Fnode_modules%2Fnpm%2Fdocs%2Fcontent%2Fcommands%2Fnpm-install-ci-test.md
+              - Example (browser link style):
+                  C%3A/Program%20Files/nodejs/node_modules/npm/docs/content/commands/npm-install-ci-test.md
+          schema:
+            type: string
+          examples:
+            singleSegmentStyle:
+              summary: Encode internal slashes as %2F (client-friendly)
+              value: C%3A%2FProgram%20Files%2Fnodejs%2Fnode_modules%2Fnpm%2Fdocs%2Fcontent%2Fcommands%2Fnpm-install-ci-test.md
+            browserLinkStyle:
+              summary: Literal '/' separators (matches Everything HTML links)
+              value: C%3A/Program%20Files/nodejs/node_modules/npm/docs/content/commands/npm-install-ci-test.md
+        - $ref: "#/components/parameters/RangeHeader"
+      responses:
+        "200":
+          $ref: "#/components/responses/Download200"
+        "206":
+          $ref: "#/components/responses/Download206"
+        "400":
+          $ref: "#/components/responses/ErrorHTML"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/ErrorHTML"
