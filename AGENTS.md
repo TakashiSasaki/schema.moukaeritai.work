@@ -14,3 +14,7 @@
 ## Website Update Policy
 
 **Policy:** Website updates will be performed based on user requests. Each request will be addressed by modifying the relevant files and committing the changes to the repository.
+
+## Documentation Guidelines
+
+**Guideline:** When the repository structure is modified, ensure that `README.md` is updated to reflect these changes accurately.

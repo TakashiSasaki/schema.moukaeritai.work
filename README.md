@@ -4,10 +4,27 @@ This repository serves as a central registry for various schemas, taxonomies, an
 
 ## Directory Structure
 
-- **/schemas**: Contains machine-readable schema definitions (e.g., JSON Schema, XML Schema).
-- **/taxonomies**: Contains taxonomy definitions (e.g., JSON-LD, RDF XML, plain text).
-- **/uuids**: Contains definitions and information related to UUIDs used within the project or organization.
-- **/examples**: Contains example files demonstrating the usage or implementation of the schemas and taxonomies.
+This repository is organized into several key directories, each serving a specific purpose:
+
+-   **`/` (Root Directory)**: Contains general project files, configuration (e.g., `.gitignore`, `package.json`), documentation (`README.md`, `LICENSE`), and the main entry point (`index.html`).
+-   **`.gemini/`**: Internal configuration and settings for the Gemini agent.
+-   **`.github/`**: Workflow definitions for GitHub Actions, including static site deployment and core generation processes.
+-   **`AGENTS.md`**: Documentation related to agent decisions and operational policies.
+-   **`bipartite/`**: Likely contains resources or ideas related to bipartite graph structures or similar concepts. (Further details can be added as needed).
+-   **`blobtype/`**: Potentially related to binary large objects (BLOBs) or specific data type handling. (Further details can be added as needed).
+-   **`contexts_src/`**: Source files for JSON-LD contexts, defining shared vocabularies and mappings.
+-   **`db-moukaeritai-work/`**: A Python project for database-related work, including source code (`src/`), tests (`tests/`), and associated documentation.
+-   **`efu/`**: Contains different versions (e.g., `0.1`, `0.2`, `0.3`) of schemas, RDF, and TTL files, possibly for an "Extended File Units" or similar specification.
+-   **`examples/`**: Illustrative examples demonstrating how to use the defined schemas and taxonomies.
+-   **`filename/`**: Directory for managing or documenting specific file naming conventions or structures.
+-   **`genpub_core/`**: Core scripts for generating and publishing content, including `genpub_core.py` and `store_records.py`.
+-   **`node_modules/`**: Standard directory for Node.js package dependencies.
+-   **`schemas/`**: Machine-readable schema definitions (e.g., JSON Schema).
+-   **`taxonomies/`**: Organized classifications and vocabularies.
+-   **`testdir/`**: A directory used for testing purposes.
+-   **`tools/`**: Utility pages or scripts, such as for UUID generation.
+-   **`uuids/`**: Definitions and information related to Universally Unique Identifiers (UUIDs).
+-   **`vocab_src/`**: Source for vocabularies, with versioned subdirectories (e.g., `v1/`).
 
 Feel free to explore the directories and contribute by following the guidelines (to be defined).
 
