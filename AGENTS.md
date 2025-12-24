@@ -10,3 +10,7 @@
 
 **Name:** Takashi Sasaki
 **Homepage:** x.com/TakashiSasaki
+
+## Website Update Policy
+
+**Policy:** Website updates will be performed based on user requests. Each request will be addressed by modifying the relevant files and committing the changes to the repository.
