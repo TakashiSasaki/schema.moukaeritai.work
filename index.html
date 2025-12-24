@@ -14,6 +14,41 @@
         h1, h2 { color: #333; }
         section { margin-bottom: 1.5em; }
         footer { text-align: center; padding: 1em 0; background-color: #333; color: #fff; margin-top: 2em; }
+
+        /* Tabs CSS */
+        .tabs {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+            display: flex; /* Use flexbox for tab buttons */
+        }
+
+        .tabs button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            font-size: 17px;
+            flex-grow: 1; /* Make buttons take equal width */
+        }
+
+        .tabs button:hover {
+            background-color: #ddd;
+        }
+
+        .tabs button.active {
+            background-color: #ccc;
+        }
+
+        .tabcontent {
+            display: none;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
     </style>
     <link rel="canonical" href="https://specstack.moukaeritai.work/">
 </head>
@@ -21,46 +56,67 @@
     <header>
         <h1>Welcome to the Project Registry</h1>
     </header>
-    <nav>
-        <a href="#schemas">Schemas</a>
-        <a href="#taxonomies">Taxonomies</a>
-        <a href="#uuids">UUIDs</a>
-        <a href="#examples">Examples</a>
-        <a href="#tools">Tools</a>
-    </nav>
     <div class="container">
-        <section id="intro">
-            <h2>About This Registry</h2>
-            <p>This site provides access to various schemas, taxonomies, and UUID definitions used within our projects. Our goal is to maintain a clear, organized, and accessible collection of these resources.</p>
-        </section>
-        <section id="schemas">
-            <h2>Schemas</h2>
-            <p>Machine-readable definitions for data structures and formats. You can find JSON Schemas, XML Schemas, and other formal definitions here.</p>
-            <p><a href="schemas/">Browse Schemas &rarr;</a></p>
-        </section>
-        <section id="taxonomies">
-            <h2>Taxonomies</h2>
-            <p>Organized classifications and vocabularies. These may include ontologies in formats like JSON-LD or RDF XML, as well as simpler controlled vocabularies.</p>
-            <p><a href="taxonomies/">Browse Taxonomies &rarr;</a></p>
-        </section>
-        <section id="uuids">
-            <h2>UUIDs</h2>
-            <p>Definitions and information related to Universally Unique Identifiers (UUIDs) used for identifying resources or entities within the project ecosystem.</p>
-            <p><a href="uuids/">Browse UUIDs &rarr;</a></p>
-        </section>
-        <section id="examples">
-            <h2>Examples</h2>
-            <p>Illustrative examples demonstrating how to use the defined schemas and taxonomies.</p>
-            <p><a href="examples/">View Examples &rarr;</a></p>
-        </section>
-        <section id="tools">
-            <h2>Tools</h2>
-            <p>Utility pages for generating and converting values.</p>
-            <p><a href="tools/">Open Tools &rarr;</a></p>
-        </section>
+        <div class="tabs">
+            <button class="tablinks active" onclick="openTab(event, 'Main')">Main</button>
+            <button class="tablinks" onclick="openTab(event, 'Misc')">Misc</button>
+        </div>
+
+        <div id="Main" class="tabcontent" style="display: block;">
+            <h2>Main Content (Coming Soon)</h2>
+            <p>This tab is currently empty. Content will be added here soon.</p>
+        </div>
+
+        <div id="Misc" class="tabcontent">
+            <section id="intro">
+                <h2>About This Registry</h2>
+                <p>This site provides access to various schemas, taxonomies, and UUID definitions used within our projects. Our goal is to maintain a clear, organized, and accessible collection of these resources.</p>
+            </section>
+            <section id="schemas">
+                <h2>Schemas</h2>
+                <p>Machine-readable definitions for data structures and formats. You can find JSON Schemas, XML Schemas, and other formal definitions here.</p>
+                <p><a href="schemas/">Browse Schemas &rarr;</a></p>
+            </section>
+            <section id="taxonomies">
+                <h2>Taxonomies</h2>
+                <p>Organized classifications and vocabularies. These may include ontologies in formats like JSON-LD or RDF XML, as well as simpler controlled vocabularies.</p>
+                <p><a href="taxonomies/">Browse Taxonomies &rarr;</a></p>
+            </section>
+            <section id="uuids">
+                <h2>UUIDs</h2>
+                <p>Definitions and information related to Universally Unique Identifiers (UUIDs) used for identifying resources or entities within the project ecosystem.</p>
+                <p><a href="uuids/">Browse UUIDs &rarr;</a></p>
+            </section>
+            <section id="examples">
+                <h2>Examples</h2>
+                <p>Illustrative examples demonstrating how to use the defined schemas and taxonomies.</p>
+                <p><a href="examples/">View Examples &rarr;</a></p>
+            </section>
+            <section id="tools">
+                <h2>Tools</h2>
+                <p>Utility pages for generating and converting values.</p>
+                <p><a href="tools/">Open Tools &rarr;</a></p>
+            </section>
+        </div>
     </div>
     <footer>
         <p>&copy; 2023 Your Project/Organization Name</p>
     </footer>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+    </script>
 </body>
 </html>
