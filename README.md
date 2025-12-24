@@ -14,7 +14,8 @@ This repository is organized into several key directories, each serving a specif
 -   **`blobtype/`**: Potentially related to binary large objects (BLOBs) or specific data type handling. (Further details can be added as needed).
 -   **`contexts_src/`**: Source files for JSON-LD contexts, defining shared vocabularies and mappings.
 -   **`db-moukaeritai-work/`**: A Python project for database-related work, including source code (`src/`), tests (`tests/`), and associated documentation.
--   **`efu/`**: Contains different versions (e.g., `0.1`, `0.2`, `0.3`) of schemas, RDF, and TTL files, possibly for an "Extended File Units" or similar specification.
+-   **`everything/`**: A top-level directory that encapsulates various project components.
+-   **`everything/efu/`**: Contains different versions (e.g., `0.1`, `0.2`, `0.3`) of schemas, RDF, and TTL files, possibly for an "Extended File Units" or similar specification.
 -   **`examples/`**: Illustrative examples demonstrating how to use the defined schemas and taxonomies.
 -   **`filename/`**: Directory for managing or documenting specific file naming conventions or structures.
 -   **`genpub_core/`**: Core scripts for generating and publishing content, including `genpub_core.py` and `store_records.py`.
