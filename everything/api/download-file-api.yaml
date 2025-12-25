@@ -333,7 +333,7 @@ components:
           schema:
             type: string
         Accept-Ranges:
-          description: Present for downloadable files: `bytes`.
+          description: "Present for downloadable files: `bytes`."
           schema:
             type: string
       content:
