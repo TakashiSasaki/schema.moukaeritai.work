@@ -1,3 +1,4 @@
 node_modules/
 package-lock.json
 .commit_message.tmp
+commit_message.txt
