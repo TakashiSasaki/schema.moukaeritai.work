@@ -1,0 +1,278 @@
+openapi: 3.1.0
+info:
+  title: Everything HTTP Server HTML Search API (json=0 or omitted)
+  version: "1.0.0"
+  description: |
+    voidtools Everything 1.5 の HTTP Server プラグイン（voidtools/http_server）を、
+    **json=0 または json パラメータ省略（HTMLページ出力）に限定**して仕様化した OpenAPI。
+
+    重要:
+    - 200 OK の場合、レスポンスは **人間可読な HTML**（text/html）である。
+    - json パラメータが **非0** だと JSON を返す（json=1）。本仕様の範囲外。
+
+    既定値（HTMLモード）:
+    - offset=0, count=32, json=0, case=0, wholeword=0, path=0, regex=0, diacritics=0, sort=name, ascending=1
+
+servers:
+  - url: http://127.160.164.78:8000
+    description: |
+      本書の作成者環境（ポート競合回避のために Everything 側設定を変更して使用）。
+      一般的な既定値ではないため、あなたの環境に合わせて変更すること。
+  - url: http://127.0.0.1:80
+    description: |
+      既定例（127.0.0.1:80 / http://localhost と同等）。
+      ポート80は競合しやすいので、環境に応じて別ポートへ変更する。
+
+paths:
+  /:
+    get:
+      operationId: searchHtml
+      summary: Search indexed files/folders (HTML page)
+      description: |
+        Everything のインデックスを検索し、結果を **HTMLページ**として返す（json=0 または省略）。
+
+        - `search` は Everything の検索構文（演算子、ワイルドカード等）を受け付ける。
+        - URLクエリとして送るため、予約文字（&, +, 空白, " など）を含む場合は URL エンコードすること。
+        - 本仕様では JSON 出力は扱わない（json=1 は範囲外）。
+
+        認証:
+        - HTTP Server の設定で username/password が有効な場合、Basic 認証が要求される。
+      security:
+        - {}
+        - basicAuth: []
+
+      parameters:
+        - name: search
+          in: query
+          required: false
+          description: |
+            検索文字列（Everything 検索構文）。
+            互換のため `s` / `q` も受け付けるが、新規実装では `search` を推奨する。
+          schema:
+            type: string
+          examples:
+            filename:
+              summary: Simple filename search
+              value: test.md
+            and_query:
+              summary: AND search (space)
+              value: "ABC 123"
+            phrase:
+              summary: Phrase search (double quotes; URL encode if needed)
+              value: "\"Program Files\""
+
+        - name: s
+          in: query
+          required: false
+          deprecated: true
+          description: "`search` の短縮名（互換用）。新規実装では `search` を使用する。"
+          schema:
+            type: string
+
+        - name: q
+          in: query
+          required: false
+          deprecated: true
+          description: "`search` の別名（互換用）。新規実装では `search` を使用する。"
+          schema:
+            type: string
+
+        - name: offset
+          in: query
+          required: false
+          description: "返却開始位置（0-based）。別名 `o`。HTML既定は 0。"
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+            default: 0
+
+        - name: o
+          in: query
+          required: false
+          deprecated: true
+          description: "`offset` の短縮名（互換用）。"
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+
+        - name: count
+          in: query
+          required: false
+          description: |
+            返却する最大件数。別名 `c`。
+            HTMLモード既定は 32。
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+            default: 32
+
+        - name: c
+          in: query
+          required: false
+          deprecated: true
+          description: "`count` の短縮名（互換用）。"
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+
+        - name: json
+          in: query
+          required: false
+          description: |
+            JSONモード指定。非0なら JSON を返す（本仕様の範囲外）。
+            HTMLに限定するため、本仕様では 0（または省略）のみを想定する。
+          schema:
+            type: integer
+            enum: [0]
+            default: 0
+
+        - name: j
+          in: query
+          required: false
+          deprecated: true
+          description: "`json` の短縮名（互換用）。HTMLに限定するため 0（または省略）のみ。"
+          schema:
+            type: integer
+            enum: [0]
+
+        - name: case
+          in: query
+          required: false
+          description: "大文字小文字を区別（別名 `i`）。1=ON, 0=OFF。HTML既定は 0。"
+          schema:
+            type: integer
+            enum: [0, 1]
+            default: 0
+
+        - name: i
+          in: query
+          required: false
+          deprecated: true
+          description: "`case` の短縮名（互換用）。"
+          schema:
+            type: integer
+            enum: [0, 1]
+
+        - name: wholeword
+          in: query
+          required: false
+          description: "単語単位でマッチ（別名 `w`）。1=ON, 0=OFF。HTML既定は 0。"
+          schema:
+            type: integer
+            enum: [0, 1]
+            default: 0
+
+        - name: w
+          in: query
+          required: false
+          deprecated: true
+          description: "`wholeword` の短縮名（互換用）。"
+          schema:
+            type: integer
+            enum: [0, 1]
+
+        - name: path
+          in: query
+          required: false
+          description: "フルパスを検索対象に含める（別名 `p`）。1=ON, 0=OFF。HTML既定は 0。"
+          schema:
+            type: integer
+            enum: [0, 1]
+            default: 0
+
+        - name: p
+          in: query
+          required: false
+          deprecated: true
+          description: "`path` の短縮名（互換用）。"
+          schema:
+            type: integer
+            enum: [0, 1]
+
+        - name: regex
+          in: query
+          required: false
+          description: "正規表現検索（別名 `r`）。1=ON, 0=OFF。HTML既定は 0。"
+          schema:
+            type: integer
+            enum: [0, 1]
+            default: 0
+
+        - name: r
+          in: query
+          required: false
+          deprecated: true
+          description: "`regex` の短縮名（互換用）。"
+          schema:
+            type: integer
+            enum: [0, 1]
+
+        - name: diacritics
+          in: query
+          required: false
+          description: "ダイアクリティカルマークを区別（別名 `m`）。1=ON, 0=OFF。HTML既定は 0。"
+          schema:
+            type: integer
+            enum: [0, 1]
+            default: 0
+
+        - name: m
+          in: query
+          required: false
+          deprecated: true
+          description: "`diacritics` の短縮名（互換用）。"
+          schema:
+            type: integer
+            enum: [0, 1]
+
+        - name: sort
+          in: query
+          required: false
+          description: "ソートキー。HTML既定は name。"
+          schema:
+            type: string
+            enum: [name, path, date_modified, size]
+            default: name
+
+        - name: ascending
+          in: query
+          required: false
+          description: "昇順(1) / 降順(0)。HTML既定は 1。"
+          schema:
+            type: integer
+            enum: [0, 1]
+            default: 1
+
+      responses:
+        "200":
+          description: HTML page (human-readable search results)
+          content:
+            text/html:
+              schema:
+                type: string
+              examples:
+                minimal:
+                  summary: Minimal HTML skeleton example (illustrative)
+                  value: "<html><head><meta charset=\"utf-8\"><title>Everything</title></head><body>...</body></html>"
+        "401":
+          description: Unauthorized (username/password が有効な場合)
+          content:
+            text/html:
+              schema:
+                type: string
+        "500":
+          description: Server error
+          content:
+            text/html:
+              schema:
+                type: string
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic

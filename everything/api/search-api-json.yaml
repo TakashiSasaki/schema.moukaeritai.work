@@ -1,62 +1,52 @@
 openapi: 3.1.0
 info:
   title: Everything HTTP Server JSON Search API (json=1)
-  version: "1.1"
+  version: "1.2.0"
   description: |
-    voidtools Everything 1.5 の HTTP Server（http_server プラグイン）の検索API。
+    voidtools Everything 1.5 の HTTP Server プラグイン（voidtools/http_server）の検索API（JSON出力のみ）。
 
-    - 本仕様は json=1（JSON出力）に限定する。
-    - Everything の検索文字列は、Everything の通常の検索構文（演算子、ワイルドカード、関数など）に従う。
-    - 公式ドキュメントは URL クエリ（GET）を記載しているため、本仕様でも GET を前提とする。
+    重要（実測にもとづく）:
+    - size は 10 進数の「文字列」として返る（例: "7699"）。
+    - date_modified も 10 進数の「文字列」として返る（例: "133754350660000000"）。
+    - date_modified は Everything SDK が扱う FILETIME と整合的（1601-01-01 UTC 起点の 100ns tick）。
+      Unix 秒への変換例:
+        unix_seconds = (filetime - 116444736000000000) / 10000000
+
+    注意:
+    - README には date_created_column が登場するが、作成者環境の実測では date_created は返らなかった。
+      実装/バージョン差で無視される可能性があるため、クライアントは「存在しない前提」で実装するのが安全。
 
 servers:
   - url: http://127.160.164.78:8000
     description: |
-      本書の作成者環境（ポート競合回避のために Everything 側設定を変更して使用）。
+      本書の作成者環境。既定(127.0.0.1:80)のポート競合を避けるため、Everything 側設定を変更して使用している。
       一般的な既定値ではないため、あなたの環境に合わせて変更すること。
-
   - url: http://127.0.0.1:80
     description: |
-      既定例（127.0.0.1:80 / http://localhost と同等）。
-      ポート80は競合しやすいので、環境に応じて別ポートへ変更する。
-
-  - url: http://{host}:{port}
-    description: 任意のホスト/ポート（HTTP Server設定に合わせる）
-    variables:
-      host:
-        default: 127.0.0.1
-      port:
-        default: "80"
+      既定値（HTTP Server 既定）。ポート80は競合しやすいので、必要に応じて Everything 側設定で変更する。
 
 paths:
   /:
     get:
-      operationId: search
+      operationId: searchJson
       summary: Search indexed files/folders (JSON only)
       description: |
-        Everything のインデックスを検索し、JSONを返す。
+        Everything のインデックスを検索し、JSONを返す（json=1 固定）。
 
-        - `search` は Everything の検索構文を受け付ける。
-        - `json` は 1 固定（この仕様では enum で固定）。
-        - *_column パラメータを 1 にすると、結果要素に対応するフィールドが追加される。
-
-        認証:
-        - HTTP Server の設定で username/password が有効な場合、Basic 認証が要求される。
-
+        - search は Everything の検索構文を受け付ける。
+        - *_column=1 のとき、対応するフィールドが results 要素に追加されうる。
+        - size/date_modified は「10進整数文字列」として返ることがある（作成者環境で実測）。
       security:
         - {}
         - basicAuth: []
 
       parameters:
-        # --- 検索文字列 ---
         - name: search
           in: query
           required: false
           description: |
-            検索文字列。Everything の検索構文（演算子、ワイルドカード、関数）に従う。
-            URLクエリとして送るため、`&` や `+` などの予約文字を含む場合は URL エンコードする。
-
-            互換のため `s` / `q` も受け付けるが、新規実装では `search` を推奨する。
+            検索文字列。Everything の検索構文に従う。
+            URLクエリとして送るため、予約文字（&, +, 空白, " など）を含む場合は URL エンコードすること。
           schema:
             type: string
           examples:
@@ -66,188 +56,51 @@ paths:
             and_query:
               summary: AND search (space)
               value: "ABC 123"
-            plus_literal:
-              summary: Literal plus signs (URL encode as %2B)
-              value: "C++"
-            ampersand_literal:
-              summary: Literal & (URL encode as %26)
-              value: "A&B.txt"
             phrase_path:
               summary: Phrase search with a Windows path
-              value: '"C:\Program Files\nodejs"'
+              value: "\"C:\\Program Files\\nodejs\""
 
-        - name: s
-          in: query
-          required: false
-          deprecated: true
-          description: "`search` の短縮名（互換用）。新規実装では `search` を使用する。"
-          schema:
-            type: string
-
-        - name: q
-          in: query
-          required: false
-          deprecated: true
-          description: "`search` の別名（互換用）。新規実装では `search` を使用する。"
-          schema:
-            type: string
-
-        # --- ページング ---
         - name: offset
           in: query
           required: false
-          description: "返却開始位置（0-based）。別名 `o`。"
+          description: 返却開始位置（0-based）。
           schema:
             type: integer
+            format: int64
             minimum: 0
             default: 0
-
-        - name: o
-          in: query
-          required: false
-          deprecated: true
-          description: "`offset` の短縮名（互換用）。"
-          schema:
-            type: integer
-            minimum: 0
 
         - name: count
           in: query
           required: false
           description: |
-            返却する最大件数。別名 `c`。
-            JSONモード既定値は非常に大きい（実質無制限）ため、API用途では明示指定を推奨。
+            返却する最大件数。
+            README の既定例では json=1 のとき非常に大きい値（2^32-1 相当）が使われる。
+            API用途では明示指定を推奨。
           schema:
             type: integer
+            format: int64
             minimum: 0
-            default: 32
+            maximum: 4294967295
+            default: 4294967295
+          examples:
+            typical:
+              summary: Typical API paging size
+              value: 100
 
-        - name: c
-          in: query
-          required: false
-          deprecated: true
-          description: "`count` の短縮名（互換用）。"
-          schema:
-            type: integer
-            minimum: 0
-
-        # --- JSON固定 ---
         - name: json
           in: query
           required: true
-          description: |
-            JSONモード指定。HTTP Server は `j` を別名として受け付ける。
-            本仕様では 1 固定。
+          description: JSONモード指定。本仕様では 1 固定。
           schema:
             type: integer
             enum: [1]
             default: 1
 
-        - name: j
-          in: query
-          required: false
-          deprecated: true
-          description: "`json` の短縮名（互換用）。本仕様では `1` のみ許容。"
-          schema:
-            type: integer
-            enum: [1]
-
-        # --- 検索オプション（0/1） ---
-        - name: case
-          in: query
-          required: false
-          description: "大文字小文字を区別（別名 `i`）。1=ON, 0=OFF。"
-          schema:
-            type: integer
-            enum: [0, 1]
-            default: 0
-
-        - name: i
-          in: query
-          required: false
-          deprecated: true
-          description: "`case` の短縮名（互換用）。"
-          schema:
-            type: integer
-            enum: [0, 1]
-
-        - name: wholeword
-          in: query
-          required: false
-          description: "単語単位でマッチ（別名 `w`）。1=ON, 0=OFF。"
-          schema:
-            type: integer
-            enum: [0, 1]
-            default: 0
-
-        - name: w
-          in: query
-          required: false
-          deprecated: true
-          description: "`wholeword` の短縮名（互換用）。"
-          schema:
-            type: integer
-            enum: [0, 1]
-
-        - name: path
-          in: query
-          required: false
-          description: "フルパスを検索対象に含める（別名 `p`）。1=ON, 0=OFF。"
-          schema:
-            type: integer
-            enum: [0, 1]
-            default: 0
-
-        - name: p
-          in: query
-          required: false
-          deprecated: true
-          description: "`path` の短縮名（互換用）。"
-          schema:
-            type: integer
-            enum: [0, 1]
-
-        - name: regex
-          in: query
-          required: false
-          description: "正規表現検索（別名 `r`）。1=ON, 0=OFF。"
-          schema:
-            type: integer
-            enum: [0, 1]
-            default: 0
-
-        - name: r
-          in: query
-          required: false
-          deprecated: true
-          description: "`regex` の短縮名（互換用）。"
-          schema:
-            type: integer
-            enum: [0, 1]
-
-        - name: diacritics
-          in: query
-          required: false
-          description: "ダイアクリティカルマークを区別（別名 `m`）。1=ON, 0=OFF。"
-          schema:
-            type: integer
-            enum: [0, 1]
-            default: 0
-
-        - name: m
-          in: query
-          required: false
-          deprecated: true
-          description: "`diacritics` の短縮名（互換用）。"
-          schema:
-            type: integer
-            enum: [0, 1]
-
-        # --- JSONに含める列（0/1） ---
         - name: path_column
           in: query
           required: false
-          description: "結果要素に `path` を含める。1=ON, 0=OFF。"
+          description: 結果要素に path を含める（1=ON, 0=OFF）。
           schema:
             type: integer
             enum: [0, 1]
@@ -256,7 +109,7 @@ paths:
         - name: size_column
           in: query
           required: false
-          description: "結果要素に `size` を含める。1=ON, 0=OFF。"
+          description: 結果要素に size を含める（1=ON, 0=OFF）。
           schema:
             type: integer
             enum: [0, 1]
@@ -265,7 +118,7 @@ paths:
         - name: date_modified_column
           in: query
           required: false
-          description: "結果要素に `date_modified` を含める。1=ON, 0=OFF。"
+          description: 結果要素に date_modified を含める（1=ON, 0=OFF）。
           schema:
             type: integer
             enum: [0, 1]
@@ -274,26 +127,18 @@ paths:
         - name: date_created_column
           in: query
           required: false
-          description: "結果要素に `date_created` を含める（公式ドキュメントに記載）。1=ON, 0=OFF。"
+          description: |
+            README には存在するが、作成者環境の実測では date_created は返らなかった。
+            実装/バージョン差で無視される可能性がある（1=ON, 0=OFF）。
           schema:
             type: integer
             enum: [0, 1]
             default: 0
 
-        - name: attributes_column
-          in: query
-          required: false
-          description: "結果要素に `attributes` を含める（公式ドキュメントに記載）。1=ON, 0=OFF。"
-          schema:
-            type: integer
-            enum: [0, 1]
-            default: 0
-
-        # --- ソート ---
         - name: sort
           in: query
           required: false
-          description: "ソートキー。"
+          description: ソートキー。
           schema:
             type: string
             enum: [name, path, date_modified, size]
@@ -302,7 +147,7 @@ paths:
         - name: ascending
           in: query
           required: false
-          description: "昇順(1) / 降順(0)。"
+          description: 昇順(1) / 降順(0)。
           schema:
             type: integer
             enum: [0, 1]
@@ -316,34 +161,21 @@ paths:
               schema:
                 $ref: "#/components/schemas/SearchResponse"
               examples:
-                minimal:
-                  summary: Minimal response (no optional columns)
+                observed_with_columns:
+                  summary: Observed output (path/size/date_modified columns enabled)
                   value:
-                    totalResults: 3
-                    results:
-                      - type: folder
-                        name: docs
-                      - type: file
-                        name: README.md
-                      - type: file
-                        name: test.md
-
-                with_columns:
-                  summary: With path/size/date_modified columns
-                  value:
-                    totalResults: 2
+                    totalResults: 10
                     results:
                       - type: file
-                        name: npm-test.md
-                        path: "C:\Program Files\nodejs\node_modules\npm\docs\content\commands"
-                        size: 2048
-                        date_modified: "2024/11/07 15:32"
+                        name: npm-install-ci-test.md
+                        path: "C:\\Program Files\\nodejs\\node_modules\\npm\\docs\\content\\commands"
+                        size: "7699"
+                        date_modified: "133754350660000000"
                       - type: file
-                        name: workflow-run-test.md
-                        path: "C:\Users\takas\OneDrive\Desktop\...\Documentation~"
-                        size: 1024
-                        date_modified: "2022/02/03 05:55"
-
+                        name: npm-install-ci-test.md
+                        path: "C:\\Users\\takas\\AppData\\Roaming\\npm\\node_modules\\npm\\docs\\content\\commands"
+                        size: "7428"
+                        date_modified: "134093252010785768"
         "401":
           description: Unauthorized (HTTP Server の設定で username/password が有効な場合)
 
@@ -357,12 +189,13 @@ components:
     SearchResponse:
       type: object
       additionalProperties: true
-      required: [results]
+      required: [totalResults, results]
       properties:
         totalResults:
           type: integer
+          format: int64
           minimum: 0
-          description: ヒット総数（offset/count の影響を受けない総数）。
+          description: ヒット総数。
         results:
           type: array
           items:
@@ -381,30 +214,38 @@ components:
           type: string
           description: ファイル名またはフォルダ名。
 
-        # 以下は *_column パラメータを 1 にした場合に追加されうる。
         path:
           type: string
-          description: "結果のパス（ディレクトリ部分）。`path_column=1` のときに含まれうる。"
+          description: |
+            結果のパス（ディレクトリ部分）。
+            path_column=1 のときに含まれうる。
+
         size:
-          type: integer
-          format: int64
-          minimum: 0
-          description: "サイズ。`size_column=1` のときに含まれうる（単位は実装依存の可能性があるが、通常はバイトとして扱うのが安全）。"
-        date_modified:
-          type: string
           description: |
-            更新日時。`date_modified_column=1` のときに含まれうる。
-            文字列形式は実装/ロケール依存の可能性があるため、クライアント側では文字列として扱う。
-        date_created:
-          type: string
-          description: |
-            作成日時。`date_created_column=1` のときに含まれうる。
-            文字列形式は実装/ロケール依存の可能性があるため、クライアント側では文字列として扱う。
-        attributes:
-          description: |
-            ファイル属性。`attributes_column=1` のときに含まれうる。
-            型やビット割り当ての仕様は本書では固定しない（実装依存になり得る）ため、クライアント側では「不透明な値」として扱い、必要があれば実測で解釈する。
+            サイズ。size_column=1 のときに含まれうる。
+            作成者環境の実測では「10進整数の文字列」（例: "7699"）として返った。
+            クライアントは uint64 としてパースすること。
           oneOf:
+            - type: string
+              pattern: "^[0-9]+$"
             - type: integer
               format: int64
-            - type: string
+              minimum: 0
+
+        date_modified:
+          type: string
+          pattern: "^[0-9]+$"
+          description: |
+            更新日時。date_modified_column=1 のときに含まれうる。
+            作成者環境の実測では「10進整数の文字列」として返った。
+            Everything SDK の FILETIME（1601-01-01 UTC 起点の 100ns tick）と整合的な値域。
+            変換例:
+              unix_seconds = (filetime - 116444736000000000) / 10000000
+
+        date_created:
+          type: string
+          pattern: "^[0-9]+$"
+          deprecated: true
+          description: |
+            作成日時。README には date_created_column があるが、作成者環境の実測では返らなかった。
+            実装/バージョン差で出ない可能性が高いので、存在しない前提で扱うのが安全。
