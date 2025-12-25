@@ -1,3 +1,29 @@
+"""
+Everything HTTP Server - Download API Verification Script
+
+This script verifies the behavior of the Everything HTTP Server's file download API
+against the OpenAPI expectations. It performs a series of tests to ensure that
+file downloads, path encoding, and special character handling work as expected.
+
+Usage:
+    python everything/api/download-file-api.py [--url http://host:port]
+
+Dependencies:
+    - requests
+    - beautifulsoup4 (implied for HTML parsing in other scripts, though this script uses regex/strings mostly)
+
+Tests performed:
+    1. Browser Style Path (e.g., /C%3A/Windows/win.ini)
+    2. Single Segment Path (e.g., /C%3A%2FWindows%2Fwin.ini)
+    3. Range Requests (Partial Content 206)
+    4. Non-existent file handling (404)
+    5. Special characters in filenames
+    6. Space encoding (percent-encoded vs literal)
+    7. Multi-byte/Non-ASCII filenames (Japanese), including:
+       - Direct access via UTF-8 encoded URL
+       - Discovery via Search API to confirm server-generated link format
+"""
+
 import requests
 import argparse
 import sys
@@ -5,6 +31,12 @@ import os
 import time
 
 def test_everything_api(base_url):
+    """
+    Run the full suite of verification tests against the given base_url.
+    
+    Args:
+        base_url (str): The base URL of the Everything HTTP Server (e.g., "http://127.0.0.1:80").
+    """
     print(f"Testing Everything API at {base_url}")
     
     # Ensure standard Windows file exists for testing
