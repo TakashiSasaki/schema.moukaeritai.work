@@ -1,3 +1,24 @@
+"""
+Everything HTTP Server - HTML Search API Verification Script
+
+This script verifies the behavior of the Everything HTTP Server's HTML search API (json=0)
+against the OpenAPI expectations. It checks that the server returns human-readable
+HTML with expected search results, and honors parameters like count, offset, case, and sort.
+
+Usage:
+    python everything/api/search-api-html.py [--url http://host:port]
+
+Dependencies:
+    - requests
+    - beautifulsoup4 (for robust HTML parsing)
+
+Tests performed:
+    1. Basic Search: Verifies that a known file appears in the HTML output.
+    2. Count & Offset: Verifies pagination logic (limit results, skip results).
+    3. Case Sensitivity: Checks 'case' parameter (0=insensitive, 1=sensitive).
+    4. Sorting: Varifies 'sort' (name) and 'ascending' (0/1) behavior.
+"""
+
 import requests
 import argparse
 import sys

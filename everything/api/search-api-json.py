@@ -1,3 +1,25 @@
+"""
+Everything HTTP Server - JSON Search API Verification Script
+
+This script verifies the behavior of the Everything HTTP Server's JSON search API (json=1)
+against the OpenAPI expectations defined in `search-api-json.yaml`.
+It validates the JSON response structure, paging, sorting, and specific column data types.
+
+Usage:
+    python everything/api/search-api-json.py [--url http://host:port]
+
+Dependencies:
+    - requests
+
+Tests performed:
+    1. Basic JSON Structure: Checks for `totalResults` and `results` keys in the response.
+    2. Count, Offset, Sort: Verifies pagination and server-side sorting.
+    3. Column Support:
+       - Checks presence of `path`, `size`, `date_modified`.
+       - Verifies that `size` and `date_modified` are returned as strings (10-base), as noted in the schema.
+       - Confirms `date_created` is NOT returned (as per implementation status).
+"""
+
 import requests
 import argparse
 import sys
