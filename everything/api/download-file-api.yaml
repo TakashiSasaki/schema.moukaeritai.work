@@ -161,7 +161,7 @@ paths:
              Characters left as-is include:
                - ALPHA / DIGIT
                - '-', '_', '.', '!', '~', '*', "'", '(', ')'
-               - Non-ASCII bytes (>= 128) are treated as valid by implementation
+               - Non-ASCII bytes (>= 128) should be UTF-8 percent-encoded
                - '/' is allowed when encoding a filename/path for the URL path
              Notably, ':' is NOT in the allowed set, so drive colon becomes %3A.
              Space becomes %20.
