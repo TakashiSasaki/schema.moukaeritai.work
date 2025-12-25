@@ -20,6 +20,10 @@ Tests performed:
        - Confirms `date_created` is NOT returned (as per implementation status).
 """
 
+__author__ = "Takashi Sasaki"
+__contact__ = "https://x.com/TakashiSasaki"
+__version__ = "1.4.0"
+
 import requests
 import argparse
 import sys

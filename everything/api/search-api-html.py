@@ -19,6 +19,10 @@ Tests performed:
     4. Sorting: Varifies 'sort' (name) and 'ascending' (0/1) behavior.
 """
 
+__author__ = "Takashi Sasaki"
+__contact__ = "https://x.com/TakashiSasaki"
+__version__ = "1.4.0"
+
 import requests
 import argparse
 import sys

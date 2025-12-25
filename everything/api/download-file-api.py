@@ -24,6 +24,10 @@ Tests performed:
        - Discovery via Search API to confirm server-generated link format
 """
 
+__author__ = "Takashi Sasaki"
+__contact__ = "https://x.com/TakashiSasaki"
+__version__ = "1.4.0"
+
 import requests
 import argparse
 import sys
