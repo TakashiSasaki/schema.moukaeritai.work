@@ -138,6 +138,74 @@ paths:
             enum: [0, 1]
             default: 0
 
+        - name: case
+          in: query
+          required: false
+          description: "大文字小文字を区別（別名 `i`）。1=ON, 0=OFF。"
+          schema: { type: integer, enum: [0, 1], default: 0 }
+        - name: i
+          in: query
+          required: false
+          deprecated: true
+          description: "`case` の短縮名（互換用）。"
+          schema: { type: integer, enum: [0, 1] }
+
+        - name: wholeword
+          in: query
+          required: false
+          description: "単語単位マッチ（別名 `w`）。"
+          schema: { type: integer, enum: [0, 1], default: 0 }
+        - name: w
+          in: query
+          required: false
+          deprecated: true
+          description: "`wholeword` の短縮名（互換用）。"
+          schema: { type: integer, enum: [0, 1] }
+
+        - name: path
+          in: query
+          required: false
+          description: "フルパスも検索対象（別名 `p`）。"
+          schema: { type: integer, enum: [0, 1], default: 0 }
+        - name: p
+          in: query
+          required: false
+          deprecated: true
+          description: "`path` の短縮名（互換用）。"
+          schema: { type: integer, enum: [0, 1] }
+
+        - name: regex
+          in: query
+          required: false
+          description: "正規表現検索（別名 `r`）。"
+          schema: { type: integer, enum: [0, 1], default: 0 }
+        - name: r
+          in: query
+          required: false
+          deprecated: true
+          description: "`regex` の短縮名（互換用）。"
+          schema: { type: integer, enum: [0, 1] }
+
+        - name: diacritics
+          in: query
+          required: false
+          description: "ダイアクリティカルマークを区別（別名 `m`）。"
+          schema: { type: integer, enum: [0, 1], default: 0 }
+        - name: m
+          in: query
+          required: false
+          deprecated: true
+          description: "`diacritics` の短縮名（互換用）。"
+          schema: { type: integer, enum: [0, 1] }
+
+        - name: attributes_column
+          in: query
+          required: false
+          description: |
+            結果要素に attributes を含める（1=ON, 0=OFF）。
+            注: 書者環境では date_created 同様、返却されないケースが観測された。
+          schema: { type: integer, enum: [0, 1], default: 0 }
+
         - name: sort
           in: query
           required: false
