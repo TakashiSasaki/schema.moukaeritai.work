@@ -122,8 +122,8 @@ def test_everything_api(base_url):
     cwd_enc = cwd.replace(":", "%3A").replace("\\", "/")
     
     # Wait for Everything to index the new files?
-    print("Waiting 6 seconds for filesystem events...")
-    time.sleep(6)
+    print("Waiting 15 seconds for filesystem events...")
+    time.sleep(15)
     
     # Should work without encoding the specials
     # URL = Base + / + Cwd_Enc + / + SpecialFilename
@@ -215,6 +215,103 @@ def test_everything_api(base_url):
             print(f"Failure: Expected 200, got {resp_7b.status_code}")
     except Exception as e:
         print(f"Error 7B: {e}")
+
+    # Test 7C: Discover correct link via Search
+    print(f"\n[Test 7C] Discovery: Search for '{jp_filename}' to find server-generated link")
+    
+    # First, verify search works at all using win.ini
+    print("Verifying search with 'win.ini'...")
+    try:
+        r_win = requests.get(f"{base_url}/", params={"search": "win.ini"})
+        if r_win.status_code == 200 and "win.ini" in r_win.text.lower():
+            print("Search functionality verified (win.ini found).")
+        else:
+            print("Warning: Search for win.ini failed or returned 0 results. Is Everything running/indexing?")
+    except:
+        pass
+
+    # Retry loop for the new file
+    found_html = ""
+    for attempt in range(6):
+        print(f"Searching for '{jp_filename}' (Attempt {attempt+1}/6)...")
+        try:
+            params = {"search": jp_filename} 
+            resp_search = requests.get(f"{base_url}/", params=params)
+            html_text = resp_search.text
+            if "合計 0 件" not in html_text and "0 results" not in html_text:
+                 # It seems we have results (or at least not explicit 0)
+                 # Check if our filename is in the result list (heuristic)
+                 if jp_filename in html_text:
+                     print("File seems to be found!")
+                     found_html = html_text
+                     break
+        except Exception as e:
+            print(f"Search request failed: {e}")
+        
+        time.sleep(5)
+    
+    if found_html:
+        try:
+            # Simple regex to find the link. 
+            # Simple regex to find the link. 
+            # Looking for <a href="/C%3A/...">...</a>
+            # The file is in cwd.
+            # We look for the filename in the href.
+            import re
+            
+            # The href will likely start with / and contain encoded parts.
+            # We search for the specific filename's presence in the href, 
+            # or just look for the row corresponding to our file.
+            # Let's just print all hrefs that look like file downloads.
+            
+            # Pattern: href="(/[^"]+日本語[^"]*)" 
+            # Wait, if it's encoded, it won't be "日本語" in the href string.
+            # We need to look for the path we expect (cwd) + filename.
+            
+            print("HTML snippet (first 1000 chars):")
+            print(found_html[:1000])
+            
+            # Let's look for hrefs containing the drive letter start
+            import re
+            found_links = re.findall(r'href="(/[A-Za-z]%3A/[^"]+)"', found_html)
+            
+            target_link = None
+            print(f"Found {len(found_links)} download links in search results.")
+            for link in found_links:
+                # Check if this link corresponds to our file.
+                # naive check: does it end with .txt? and maybe checking decoding matches?
+                # or just use the last one if we assume unique text?
+                # We created a unique file "日本語.txt", but maybe user has others.
+                # Let's filter by checking if it ends with our extension and seems relevant.
+                if link.endswith(".txt"):
+                    print(f"Candidate: {link}")
+                    # Try to see if this is the one
+                    # We can try to download it.
+                    target_link = link
+            
+            if target_link:
+                print(f"Testing discovered link: {target_link}")
+                final_url = f"{base_url}{target_link}"
+                resp_disc = requests.get(final_url)
+                print(f"Status: {resp_disc.status_code}")
+                if resp_disc.status_code == 200:
+                    print("Success: Downloaded using discovered link!")
+                    print(f"Discovered URL: {final_url}")
+                    # Analyze the encoding
+                    # Extract the filename part
+                    # /C%3A/.../filename
+                    filename_part = target_link.split("/")[-1]
+                    print(f"Server encoded filename as: {filename_part}")
+                else:
+                    print(f"Failure: Link found but returned {resp_disc.status_code}")
+            else:
+                print("No suitable link found in search results.")
+        except Exception as e:
+            print(f"Error parsing search result: {e}")
+
+    else:
+        print("Search failed to find the new file after retries.")
+
 
     # Cleanup
     try:
