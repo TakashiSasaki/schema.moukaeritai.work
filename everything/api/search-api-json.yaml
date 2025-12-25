@@ -1,0 +1,410 @@
+openapi: 3.1.0
+info:
+  title: Everything HTTP Server JSON Search API (json=1)
+  version: "1.1"
+  description: |
+    voidtools Everything 1.5 の HTTP Server（http_server プラグイン）の検索API。
+
+    - 本仕様は json=1（JSON出力）に限定する。
+    - Everything の検索文字列は、Everything の通常の検索構文（演算子、ワイルドカード、関数など）に従う。
+    - 公式ドキュメントは URL クエリ（GET）を記載しているため、本仕様でも GET を前提とする。
+
+servers:
+  - url: http://127.160.164.78:8000
+    description: |
+      本書の作成者環境（ポート競合回避のために Everything 側設定を変更して使用）。
+      一般的な既定値ではないため、あなたの環境に合わせて変更すること。
+
+  - url: http://127.0.0.1:80
+    description: |
+      既定例（127.0.0.1:80 / http://localhost と同等）。
+      ポート80は競合しやすいので、環境に応じて別ポートへ変更する。
+
+  - url: http://{host}:{port}
+    description: 任意のホスト/ポート（HTTP Server設定に合わせる）
+    variables:
+      host:
+        default: 127.0.0.1
+      port:
+        default: "80"
+
+paths:
+  /:
+    get:
+      operationId: search
+      summary: Search indexed files/folders (JSON only)
+      description: |
+        Everything のインデックスを検索し、JSONを返す。
+
+        - `search` は Everything の検索構文を受け付ける。
+        - `json` は 1 固定（この仕様では enum で固定）。
+        - *_column パラメータを 1 にすると、結果要素に対応するフィールドが追加される。
+
+        認証:
+        - HTTP Server の設定で username/password が有効な場合、Basic 認証が要求される。
+
+      security:
+        - {}
+        - basicAuth: []
+
+      parameters:
+        # --- 検索文字列 ---
+        - name: search
+          in: query
+          required: false
+          description: |
+            検索文字列。Everything の検索構文（演算子、ワイルドカード、関数）に従う。
+            URLクエリとして送るため、`&` や `+` などの予約文字を含む場合は URL エンコードする。
+
+            互換のため `s` / `q` も受け付けるが、新規実装では `search` を推奨する。
+          schema:
+            type: string
+          examples:
+            filename:
+              summary: Simple filename search
+              value: test.md
+            and_query:
+              summary: AND search (space)
+              value: "ABC 123"
+            plus_literal:
+              summary: Literal plus signs (URL encode as %2B)
+              value: "C++"
+            ampersand_literal:
+              summary: Literal & (URL encode as %26)
+              value: "A&B.txt"
+            phrase_path:
+              summary: Phrase search with a Windows path
+              value: '"C:\Program Files\nodejs"'
+
+        - name: s
+          in: query
+          required: false
+          deprecated: true
+          description: "`search` の短縮名（互換用）。新規実装では `search` を使用する。"
+          schema:
+            type: string
+
+        - name: q
+          in: query
+          required: false
+          deprecated: true
+          description: "`search` の別名（互換用）。新規実装では `search` を使用する。"
+          schema:
+            type: string
+
+        # --- ページング ---
+        - name: offset
+          in: query
+          required: false
+          description: "返却開始位置（0-based）。別名 `o`。"
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+
+        - name: o
+          in: query
+          required: false
+          deprecated: true
+          description: "`offset` の短縮名（互換用）。"
+          schema:
+            type: integer
+            minimum: 0
+
+        - name: count
+          in: query
+          required: false
+          description: |
+            返却する最大件数。別名 `c`。
+            JSONモード既定値は非常に大きい（実質無制限）ため、API用途では明示指定を推奨。
+          schema:
+            type: integer
+            minimum: 0
+            default: 32
+
+        - name: c
+          in: query
+          required: false
+          deprecated: true
+          description: "`count` の短縮名（互換用）。"
+          schema:
+            type: integer
+            minimum: 0
+
+        # --- JSON固定 ---
+        - name: json
+          in: query
+          required: true
+          description: |
+            JSONモード指定。HTTP Server は `j` を別名として受け付ける。
+            本仕様では 1 固定。
+          schema:
+            type: integer
+            enum: [1]
+            default: 1
+
+        - name: j
+          in: query
+          required: false
+          deprecated: true
+          description: "`json` の短縮名（互換用）。本仕様では `1` のみ許容。"
+          schema:
+            type: integer
+            enum: [1]
+
+        # --- 検索オプション（0/1） ---
+        - name: case
+          in: query
+          required: false
+          description: "大文字小文字を区別（別名 `i`）。1=ON, 0=OFF。"
+          schema:
+            type: integer
+            enum: [0, 1]
+            default: 0
+
+        - name: i
+          in: query
+          required: false
+          deprecated: true
+          description: "`case` の短縮名（互換用）。"
+          schema:
+            type: integer
+            enum: [0, 1]
+
+        - name: wholeword
+          in: query
+          required: false
+          description: "単語単位でマッチ（別名 `w`）。1=ON, 0=OFF。"
+          schema:
+            type: integer
+            enum: [0, 1]
+            default: 0
+
+        - name: w
+          in: query
+          required: false
+          deprecated: true
+          description: "`wholeword` の短縮名（互換用）。"
+          schema:
+            type: integer
+            enum: [0, 1]
+
+        - name: path
+          in: query
+          required: false
+          description: "フルパスを検索対象に含める（別名 `p`）。1=ON, 0=OFF。"
+          schema:
+            type: integer
+            enum: [0, 1]
+            default: 0
+
+        - name: p
+          in: query
+          required: false
+          deprecated: true
+          description: "`path` の短縮名（互換用）。"
+          schema:
+            type: integer
+            enum: [0, 1]
+
+        - name: regex
+          in: query
+          required: false
+          description: "正規表現検索（別名 `r`）。1=ON, 0=OFF。"
+          schema:
+            type: integer
+            enum: [0, 1]
+            default: 0
+
+        - name: r
+          in: query
+          required: false
+          deprecated: true
+          description: "`regex` の短縮名（互換用）。"
+          schema:
+            type: integer
+            enum: [0, 1]
+
+        - name: diacritics
+          in: query
+          required: false
+          description: "ダイアクリティカルマークを区別（別名 `m`）。1=ON, 0=OFF。"
+          schema:
+            type: integer
+            enum: [0, 1]
+            default: 0
+
+        - name: m
+          in: query
+          required: false
+          deprecated: true
+          description: "`diacritics` の短縮名（互換用）。"
+          schema:
+            type: integer
+            enum: [0, 1]
+
+        # --- JSONに含める列（0/1） ---
+        - name: path_column
+          in: query
+          required: false
+          description: "結果要素に `path` を含める。1=ON, 0=OFF。"
+          schema:
+            type: integer
+            enum: [0, 1]
+            default: 0
+
+        - name: size_column
+          in: query
+          required: false
+          description: "結果要素に `size` を含める。1=ON, 0=OFF。"
+          schema:
+            type: integer
+            enum: [0, 1]
+            default: 0
+
+        - name: date_modified_column
+          in: query
+          required: false
+          description: "結果要素に `date_modified` を含める。1=ON, 0=OFF。"
+          schema:
+            type: integer
+            enum: [0, 1]
+            default: 0
+
+        - name: date_created_column
+          in: query
+          required: false
+          description: "結果要素に `date_created` を含める（公式ドキュメントに記載）。1=ON, 0=OFF。"
+          schema:
+            type: integer
+            enum: [0, 1]
+            default: 0
+
+        - name: attributes_column
+          in: query
+          required: false
+          description: "結果要素に `attributes` を含める（公式ドキュメントに記載）。1=ON, 0=OFF。"
+          schema:
+            type: integer
+            enum: [0, 1]
+            default: 0
+
+        # --- ソート ---
+        - name: sort
+          in: query
+          required: false
+          description: "ソートキー。"
+          schema:
+            type: string
+            enum: [name, path, date_modified, size]
+            default: name
+
+        - name: ascending
+          in: query
+          required: false
+          description: "昇順(1) / 降順(0)。"
+          schema:
+            type: integer
+            enum: [0, 1]
+            default: 1
+
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
+              examples:
+                minimal:
+                  summary: Minimal response (no optional columns)
+                  value:
+                    totalResults: 3
+                    results:
+                      - type: folder
+                        name: docs
+                      - type: file
+                        name: README.md
+                      - type: file
+                        name: test.md
+
+                with_columns:
+                  summary: With path/size/date_modified columns
+                  value:
+                    totalResults: 2
+                    results:
+                      - type: file
+                        name: npm-test.md
+                        path: "C:\Program Files\nodejs\node_modules\npm\docs\content\commands"
+                        size: 2048
+                        date_modified: "2024/11/07 15:32"
+                      - type: file
+                        name: workflow-run-test.md
+                        path: "C:\Users\takas\OneDrive\Desktop\...\Documentation~"
+                        size: 1024
+                        date_modified: "2022/02/03 05:55"
+
+        "401":
+          description: Unauthorized (HTTP Server の設定で username/password が有効な場合)
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+
+  schemas:
+    SearchResponse:
+      type: object
+      additionalProperties: true
+      required: [results]
+      properties:
+        totalResults:
+          type: integer
+          minimum: 0
+          description: ヒット総数（offset/count の影響を受けない総数）。
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/SearchResultItem"
+
+    SearchResultItem:
+      type: object
+      additionalProperties: true
+      required: [type, name]
+      properties:
+        type:
+          type: string
+          enum: [file, folder]
+          description: 結果の種別。
+        name:
+          type: string
+          description: ファイル名またはフォルダ名。
+
+        # 以下は *_column パラメータを 1 にした場合に追加されうる。
+        path:
+          type: string
+          description: "結果のパス（ディレクトリ部分）。`path_column=1` のときに含まれうる。"
+        size:
+          type: integer
+          format: int64
+          minimum: 0
+          description: "サイズ。`size_column=1` のときに含まれうる（単位は実装依存の可能性があるが、通常はバイトとして扱うのが安全）。"
+        date_modified:
+          type: string
+          description: |
+            更新日時。`date_modified_column=1` のときに含まれうる。
+            文字列形式は実装/ロケール依存の可能性があるため、クライアント側では文字列として扱う。
+        date_created:
+          type: string
+          description: |
+            作成日時。`date_created_column=1` のときに含まれうる。
+            文字列形式は実装/ロケール依存の可能性があるため、クライアント側では文字列として扱う。
+        attributes:
+          description: |
+            ファイル属性。`attributes_column=1` のときに含まれうる。
+            型やビット割り当ての仕様は本書では固定しない（実装依存になり得る）ため、クライアント側では「不透明な値」として扱い、必要があれば実測で解釈する。
+          oneOf:
+            - type: integer
+              format: int64
+            - type: string
