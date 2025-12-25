@@ -100,6 +100,21 @@ APIの安定性のため、本書は正規名（長いキー）を推奨し、�
     *   `case=1`: 区別し、ヒットしない（0件）挙動となる。
 4.  **ソート**: `sort=name`, `ascending=0` で名前の降順に並ぶことを確認。
 
+### 検証スクリプトの実行方法
+
+リポジトリ内の `search-api-html.py` を使用して、上記の項目をご自身の環境で検証できます。
+
+```bash
+# 依存ライブラリのインストール
+pip install requests beautifulsoup4
+
+# スクリプトの実行（デフォルトURL: http://127.160.164.78:8000）
+python everything/api/search-api-html.py
+
+# URLを指定して実行する場合
+python everything/api/search-api-html.py --url http://127.0.0.1:80
+```
+
 ## 9. OpenAPI 定義ファイル
 
 詳細なOpenAPI定義（YAML）は、以下のファイルを参照してください。

@@ -202,6 +202,21 @@ Everything SDK では更新日時は `FILETIME`（Windows の 64-bit 時刻: 160
     *   `date_modified`: **10進文字列**として返る。
     *   `date_created`: パラメータを指定しても返ってこない（仕様通り未実装/無効扱い）。
 
+### 検証スクリプトの実行方法
+
+リポジトリ内の `search-api-json.py` を使用して、上記の項目をご自身の環境で検証できます。
+
+```bash
+# 依存ライブラリのインストール
+pip install requests
+
+# スクリプトの実行（デフォルトURL: http://127.160.164.78:8000）
+python everything/api/search-api-json.py
+
+# URLを指定して実行する場合
+python everything/api/search-api-json.py --url http://127.0.0.1:80
+```
+
 ## 9. OpenAPI 定義ファイル
 
 詳細なOpenAPI定義（YAML）は、以下のファイルを参照してください。
