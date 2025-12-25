@@ -1,37 +1,292 @@
 openapi: 3.1.0
 info:
-  title: Everything HTTP Server - Binary Download API (download-only)
-  version: "1.0.0"
+  title: Everything HTTP Server Binary Download API
+  version: "1.3.0"
   description: |
-    This OpenAPI document describes ONLY the binary file download behavior of Everything's built-in HTTP Server.
+    Everything (voidtools) の HTTP Server で「ファイル実体（バイナリ）」を取得するための OpenAPI 仕様。
 
-    Scope:
-      - File content download via HTTP GET on a path that represents a Windows filesystem path.
-      - Optional HTTP Range requests (streaming / partial download).
-      - Optional HTTP Basic authentication (if configured in Everything).
+    ■ 重要な前提（サーバ設定）
+    - Everything 側で HTTP Server を Enable
+    - "Allow file download"（ダウンロード許可）が有効であること
+      ※ 公式 README では file downloading を無効化可能であることが明記されている。Range request 対応も明記。 (voidtools/http_server README) :contentReference[oaicite:2]{index=2}
 
-    Out of scope:
-      - Search endpoints (e.g., /?search=...&json=1), HTML/JSON result listing, UI resources.
+    ■ エンドポイントの考え方
+    - 専用の /download のような API はない。
+    - 検索結果 HTML のリンクに現れるような、エンコード済み Windows パスを HTTP のパスとして GET するとファイル実体が返る。
+      例（観測）:
+        Windows: C:\Program Files\nodejs\...\npm-install-ci-test.md
+        URL:     /C%3A/Program%20Files/nodejs/.../npm-install-ci-test.md
 
-    Important notes (implementation behavior):
-      - File download can be disabled by unchecking "Allow file download" in Everything's HTTP Server options.
-        When disabled, file results are not linked in the HTML UI, and direct file download attempts will fail
-        (commonly resulting in 404 Not Found for real filesystem files). See implementation notes in the
-        operation description. (Official doc mentions this toggle; implementation enforces it.)
+    ■ パス（URL）エンコード規約（最重要）
+    - Windows 絶対パスをセグメント分割し、各セグメントを RFC3986 の percent-encoding（実装的には encodeURIComponent 相当）でエンコードして '/' で連結する。
+      - ドライブ "C:" は "C%3A"（':' は %3A）
+      - スペースは %20
+      - '#' は %23、'?' は %3F、'%' は %25（= 二重エンコード事故の原因になるので注意）
+    - バックスラッシュ '\' は URL では区切りとして '/' に置換する（'\ '自体を %5C として残さない）。
+    - 二重エンコードは禁止（例: % をさらに %25 にしない）。
+
+    ■ レスポンスの型
+    - ファイルの場合: application/octet-stream（実体バイナリ）
+    - フォルダやエラーの場合: text/html のページが返ることがある（Everything の Web UI と同様）
+
 servers:
   - url: http://127.160.164.78:8000
-    description: Example server from the user's environment (bind+port).
+    description: |
+      本ドキュメント作成者の検証環境（既定の 127.0.0.1:80 ではなく、ポート競合回避のため設定変更している）。
+      コード生成時にこのサーバが既定として使われることを意図して先頭に記載。
+  - url: http://127.0.0.1:80
+    description: |
+      Everything HTTP Server の既定例（ローカルホスト:80）。
+      実環境の設定に合わせて利用すること。
   - url: http://{host}:{port}
-    description: Generic Everything HTTP Server
+    description: 任意のホスト/ポート（Everything の HTTP Server 設定に合わせる）
     variables:
       host:
-        default: localhost
+        default: 127.0.0.1
       port:
         default: "80"
 
 tags:
-  - name: BinaryDownload
-    description: Download file content (binary) from a path that encodes a Windows filesystem path.
+  - name: download
+    description: ファイル実体（バイナリ）取得
+
+paths:
+  # 実態に近い表現: /C%3A/Program%20Files/.../file.ext
+  #
+  # OpenAPI の path parameter は通常 1 セグメント相当だが、
+  # ここでは {path} を「以降の複数セグメントを '/' で連結したもの」として扱う（= 実装側で URL を組み立てることが前提）。
+  "/{drive}/{path}":
+    get:
+      tags: [download]
+      operationId: downloadFileByEncodedWindowsPath
+      summary: Download file content by encoded Windows absolute path
+      description: |
+        エンコード済み Windows 絶対パスに対応するファイル実体を取得する。
+
+        パス例（観測）:
+          /C%3A/Program%20Files/nodejs/node_modules/npm/docs/content/commands/npm-install-ci-test.md
+
+        Range request:
+          公式 README で Range request 対応が明記されている。 :contentReference[oaicite:3]{index=3}
+
+        実装注意:
+          - HTTP クライアント/SDK が path パラメータを「自動エンコード」して二重エンコードにならないよう注意。
+          - 最も安全なのは、検索結果 HTML の href をそのまま（相対 URL として）使うこと。
+      parameters:
+        - name: drive
+          in: path
+          required: true
+          description: |
+            ドライブセグメント（例: C: → C%3A）。
+            ':' は必ず %3A にする。
+          schema:
+            type: string
+          examples:
+            cDrive:
+              value: C%3A
+
+        - name: path
+          in: path
+          required: true
+          allowReserved: true
+          description: |
+            drive 以降のパス（複数セグメント）。
+            OpenAPI 上は 1 パラメータだが、実際の URL は
+              /{drive}/{seg1}/{seg2}/.../{file}
+            という複数セグメント構造。
+
+            各 seg は RFC3986 percent-encoding（encodeURIComponent 相当）でエンコードする。
+            例:
+              Program Files → Program%20Files
+              foo#bar.txt   → foo%23bar.txt
+          schema:
+            type: string
+          examples:
+            example1:
+              value: Program%20Files/nodejs/node_modules/npm/docs/content/commands/npm-install-ci-test.md
+
+        - name: Range
+          in: header
+          required: false
+          description: |
+            部分取得（bytes）。
+            例: bytes=0-1023
+            ※ Range request 対応は公式 README に明記。 :contentReference[oaicite:4]{index=4}
+          schema:
+            type: string
+          examples:
+            first1KiB:
+              value: bytes=0-1023
+
+      security:
+        - {}
+        - basicAuth: []
+
+      responses:
+        "200":
+          description: |
+            OK（全体取得）。
+            ファイルの場合はバイナリ。フォルダや UI ページに解釈された場合は HTML が返る可能性がある。
+          headers:
+            Content-Length:
+              description: レスポンスボディ長（バイト）
+              schema:
+                type: integer
+                format: int64
+            Accept-Ranges:
+              description: |
+                Range 対応の場合に "bytes" が返ることがある。
+              schema:
+                type: string
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+              examples:
+                note:
+                  summary: Binary body (example omitted)
+                  value: ""
+            text/html:
+              schema:
+                type: string
+              examples:
+                directoryListing:
+                  summary: Directory listing or UI HTML (example abbreviated)
+                  value: "<html>...</html>"
+
+        "206":
+          description: Partial Content（Range 指定時）
+          headers:
+            Content-Range:
+              description: 返却範囲
+              schema:
+                type: string
+            Content-Length:
+              description: 返却サイズ（バイト）
+              schema:
+                type: integer
+                format: int64
+            Accept-Ranges:
+              schema:
+                type: string
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+        "401":
+          description: Unauthorized（Basic 認証が有効な場合）
+          content:
+            text/html:
+              schema:
+                type: string
+
+        "403":
+          description: Forbidden（Allow file download 無効、またはアクセス拒否の可能性）
+          content:
+            text/html:
+              schema:
+                type: string
+
+        "404":
+          description: Not Found（パス解決不能、またはファイル取得不能の可能性）
+          content:
+            text/html:
+              schema:
+                type: string
+
+        "416":
+          description: Range Not Satisfiable（Range 不正）
+          content:
+            text/html:
+              schema:
+                type: string
+
+  # 生成系ツールが /{drive}/{path} を扱いにくい場合の補助表現。
+  # encodedPath には "C%3A/Program%20Files/.../file.ext" のように '/' 区切りを含む文字列を入れる。
+  # ただしクライアント実装は、最終的に上の実 URL 形式へ展開して送る前提。
+  "/{encodedPath}":
+    get:
+      tags: [download]
+      operationId: downloadFileByEncodedPathHelper
+      summary: (Helper) Download using a fully encoded path string
+      description: |
+        OpenAPI クライアント生成都合の補助エンドポイント表現。
+        encodedPath は先頭スラッシュ無しで、エンコード済みパス全体を表す:
+
+          encodedPath = "C%3A/Program%20Files/.../file.ext"
+
+        注意:
+          - 一部ツールは '/' を含む path parameter を正しく扱えないことがある。
+          - 安定運用では、クライアント側で URL を組み立てて /{drive}/{path} 形式で送るのを推奨。
+      parameters:
+        - name: encodedPath
+          in: path
+          required: true
+          allowReserved: true
+          description: |
+            先頭 '/' を除いたエンコード済みパス全体。
+            例: C%3A/Program%20Files/nodejs/.../npm-install-ci-test.md
+          schema:
+            type: string
+          examples:
+            example:
+              value: C%3A/Program%20Files/nodejs/node_modules/npm/docs/content/commands/npm-install-ci-test.md
+
+        - name: Range
+          in: header
+          required: false
+          schema:
+            type: string
+
+      security:
+        - {}
+        - basicAuth: []
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+        "206":
+          description: Partial Content（Range）
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Unauthorized
+          content:
+            text/html:
+              schema:
+                type: string
+        "403":
+          description: Forbidden
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          description: Not Found
+          content:
+            text/html:
+              schema:
+                type: string
+        "416":
+          description: Range Not Satisfiable
+          content:
+            text/html:
+              schema:
+                type: string
 
 components:
   securitySchemes:
@@ -39,200 +294,5 @@ components:
       type: http
       scheme: basic
       description: |
-        HTTP Basic authentication. If Everything HTTP Server username/password are set,
-        unauthenticated requests may receive 401 with `WWW-Authenticate: Basic realm="Everything"`.
-  parameters:
-    RangeHeader:
-      name: Range
-      in: header
-      required: false
-      description: |
-        Optional HTTP Range header for partial download.
-        Everything HTTP Server supports range requests (streaming support).
-        Example: `Range: bytes=0-1023`
-      schema:
-        type: string
-      examples:
-        first1KiB:
-          summary: Download first 1024 bytes
-          value: bytes=0-1023
-        fromOffset:
-          summary: Download from byte offset to end
-          value: bytes=1048576-
-  responses:
-    Download200:
-      description: Full content
-      headers:
-        Content-Type:
-          description: |
-            MIME type. Implementation looks up Windows registry by file extension ("Content Type");
-            falls back to `application/octet-stream` if unknown.
-          schema:
-            type: string
-        Content-Length:
-          schema:
-            type: integer
-            format: int64
-        Last-Modified:
-          description: HTTP date of file last write time.
-          schema:
-            type: string
-        Accept-Ranges:
-          description: Present for downloadable files: `bytes`.
-          schema:
-            type: string
-      content:
-        application/octet-stream:
-          schema:
-            type: string
-            format: binary
-          examples:
-            note:
-              summary: Binary payload (omitted)
-              value: ""
-    Download206:
-      description: Partial content (Range response)
-      headers:
-        Content-Type:
-          schema:
-            type: string
-        Content-Length:
-          schema:
-            type: integer
-            format: int64
-        Last-Modified:
-          schema:
-            type: string
-        Accept-Ranges:
-          schema:
-            type: string
-        Content-Range:
-          description: |
-            Content range of the response.
-            Example: `Content-Range: bytes 0-1023/1234567`
-          schema:
-            type: string
-      content:
-        application/octet-stream:
-          schema:
-            type: string
-            format: binary
-    ErrorHTML:
-      description: Error response (HTML)
-      headers:
-        Content-Type:
-          schema:
-            type: string
-      content:
-        text/html:
-          schema:
-            type: string
-          examples:
-            notFound:
-              summary: 404 Not Found (HTML)
-              value: "<html><body><h1>404 Not Found</h1></body></html>"
-    Unauthorized:
-      description: 401 Unauthorized (HTTP Basic challenge)
-      headers:
-        WWW-Authenticate:
-          description: |
-            Basic realm challenge, e.g. `Basic realm="Everything"`.
-          schema:
-            type: string
-      content:
-        text/html:
-          schema:
-            type: string
-
-paths:
-  "/{escapedWindowsPath}":
-    get:
-      tags: [BinaryDownload]
-      summary: Download a file by encoded Windows path (binary)
-      description: |
-        Downloads the file content (binary) for a filesystem path encoded into the URL path.
-
-        How to form the request path (encoding rules):
-          1) Start from a Windows path, e.g.:
-               C:\Program Files\nodejs\node_modules\npm\docs\content\commands\npm-install-ci-test.md
-          2) Convert backslashes "\" to forward slashes "/":
-               C:/Program Files/nodejs/node_modules/npm/docs/content/commands/npm-install-ci-test.md
-          3) Percent-encode characters that are NOT "valid URL chars" per implementation.
-             Characters left as-is include:
-               - ALPHA / DIGIT
-               - '-', '_', '.', '!', '~', '*', "'", '(', ')'
-               - Non-ASCII bytes (>= 128) are treated as valid by implementation
-               - '/' is allowed when encoding a filename/path for the URL path
-             Notably, ':' is NOT in the allowed set, so drive colon becomes %3A.
-             Space becomes %20.
-
-        Two equivalent URL styles are typically accepted:
-          A) "Browser link style" (slashes are literal path separators):
-               /C%3A/Program%20Files/nodejs/.../npm-install-ci-test.md
-             This matches your observed DOM link format.
-
-          B) "Single-segment style" (internal slashes percent-encoded as %2F):
-               /C%3A%2FProgram%20Files%2Fnodejs%2F...%2Fnpm-install-ci-test.md
-             This is often easier for API client libraries and for OpenAPI tooling because it
-             avoids embedded '/' inside the path parameter value.
-
-        Server-side decoding and normalization (important for correct requests):
-          - The server percent-decodes the URL path (unescape).
-          - Then it converts '/' to '\' (after skipping an initial leading '/').
-          - Then it canonicalizes the path (removes ".." segments).
-          - Then it may remove a trailing backslash.
-          Therefore, paths containing ".." are normalized and should not be relied upon.
-
-        Download permission ("Allow file download"):
-          - Real filesystem file download is gated by the "Allow file download" setting.
-          - If disabled, the server will not serve real files; direct download attempts will fail
-            (commonly 404 Not Found for real files), although embedded/static resources may still be served.
-
-        Range requests:
-          - Range requests are supported. Use `Range: bytes=...`.
-          - Successful range requests yield 206 and include `Content-Range`.
-      security:
-        # Either no auth (if server has no user/pass), or Basic auth (if configured).
-        - {}
-        - basicAuth: []
-      parameters:
-        - name: escapedWindowsPath
-          in: path
-          required: true
-          description: |
-            Encoded Windows filesystem path (without the leading "/").
-
-            Recommended construction:
-              - Replace "\" with "/"
-              - Percent-encode all characters except:
-                  ALPHA / DIGIT / '-' / '_' / '.' / '!' / '~' / '*' / "'" / '(' / ')'
-                  and optionally '/' if you keep slash separators literal.
-              - Drive colon ':' must be percent-encoded (%3A), consistent with observed DOM links.
-
-            IMPORTANT:
-              - If your OpenAPI tooling cannot model embedded '/', encode those internal slashes as %2F.
-              - Example (single-segment style):
-                  C%3A%2FProgram%20Files%2Fnodejs%2Fnode_modules%2Fnpm%2Fdocs%2Fcontent%2Fcommands%2Fnpm-install-ci-test.md
-              - Example (browser link style):
-                  C%3A/Program%20Files/nodejs/node_modules/npm/docs/content/commands/npm-install-ci-test.md
-          schema:
-            type: string
-          examples:
-            singleSegmentStyle:
-              summary: Encode internal slashes as %2F (client-friendly)
-              value: C%3A%2FProgram%20Files%2Fnodejs%2Fnode_modules%2Fnpm%2Fdocs%2Fcontent%2Fcommands%2Fnpm-install-ci-test.md
-            browserLinkStyle:
-              summary: Literal '/' separators (matches Everything HTML links)
-              value: C%3A/Program%20Files/nodejs/node_modules/npm/docs/content/commands/npm-install-ci-test.md
-        - $ref: "#/components/parameters/RangeHeader"
-      responses:
-        "200":
-          $ref: "#/components/responses/Download200"
-        "206":
-          $ref: "#/components/responses/Download206"
-        "400":
-          $ref: "#/components/responses/ErrorHTML"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "404":
-          $ref: "#/components/responses/ErrorHTML"
+        Everything HTTP Server で username/password を設定した場合の Basic 認証。
+        公式 README の範囲では、HTTP Server 機能（認証・file download 無効化・Range 対応）が説明されている。 :contentReference[oaicite:5]{index=5}
