@@ -1,26 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Registry</title>
     <style>
-        body { font-family: sans-serif; margin: 0; background-color: #f4f4f4; color: #333; }
-        header { background-color: #333; color: #fff; padding: 0.5em 0; text-align: center; }
-        nav { background-color: #444; padding: 0.5em; text-align: center; }
-        nav a { color: #fff; margin: 0 1em; text-decoration: none; }
-        nav a:hover { text-decoration: underline; }
-        .container { max-width: 960px; margin: 2em auto; padding: 1em; background-color: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1, h2 { color: #333; }
-        section { margin-bottom: 1.5em; }
-        footer { text-align: center; padding: 0.5em 0; background-color: #333; color: #fff; margin-top: 2em; }
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 0.5em 0;
+            text-align: center;
+        }
+
+        nav {
+            background-color: #444;
+            padding: 0.5em;
+            text-align: center;
+        }
+
+        nav a {
+            color: #fff;
+            margin: 0 1em;
+            text-decoration: none;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 2em auto;
+            padding: 1em;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1,
+        h2 {
+            color: #333;
+        }
+
+        section {
+            margin-bottom: 1.5em;
+        }
+
+        footer {
+            text-align: center;
+            padding: 0.5em 0;
+            background-color: #333;
+            color: #fff;
+            margin-top: 2em;
+        }
 
         /* Tabs CSS */
         .tabs {
             overflow: hidden;
             border: 1px solid #ccc;
             background-color: #f1f1f1;
-            display: flex; /* Use flexbox for tab buttons */
+            display: flex;
+            /* Use flexbox for tab buttons */
         }
 
         .tabs button {
@@ -32,7 +79,8 @@
             padding: 14px 16px;
             transition: 0.3s;
             font-size: 17px;
-            flex-grow: 1; /* Make buttons take equal width */
+            flex-grow: 1;
+            /* Make buttons take equal width */
         }
 
         .tabs button:hover {
@@ -52,12 +100,14 @@
     </style>
     <link rel="canonical" href="https://specstack.moukaeritai.work/">
 </head>
+
 <body>
     <header style="position: relative;">
         <h1>Welcome to the Project Registry</h1>
         <div style="position: absolute; top: 1em; right: 1em;">
             <a href="https://moukaeritai.work/" style="color: #fff; text-decoration: none;">
-                <img src="https://moukaeritai.work/pictgram/64x64.webp/slate_teal.webp" alt="moukaeritai.work favicon" style="height: 1em; vertical-align: middle; margin-right: 0.5em;">
+                <img src="https://moukaeritai.work/pictgram/64x64.webp/slate_teal.webp" alt="moukaeritai.work favicon"
+                    style="height: 1em; vertical-align: middle; margin-right: 0.5em;">
                 moukaeritai.work
             </a>
         </div>
@@ -74,26 +124,36 @@
                 <p>Definitions and specifications for Extended File Units.</p>
                 <p><a href="everything/efu/">Browse EFU &rarr;</a></p>
             </section>
+            <section id="api">
+                <h2>Everything HTTP Server API</h2>
+                <p>OpenAPI specifications and verification scripts for the Everything HTTP Server API.</p>
+                <p><a href="everything/api/">Browse API &rarr;</a></p>
+            </section>
         </div>
 
         <div id="Misc" class="tabcontent">
             <section id="intro">
                 <h2>About This Registry</h2>
-                <p>This site provides access to various schemas, taxonomies, and UUID definitions used within our projects. Our goal is to maintain a clear, organized, and accessible collection of these resources.</p>
+                <p>This site provides access to various schemas, taxonomies, and UUID definitions used within our
+                    projects. Our goal is to maintain a clear, organized, and accessible collection of these resources.
+                </p>
             </section>
             <section id="schemas">
                 <h2>Schemas</h2>
-                <p>Machine-readable definitions for data structures and formats. You can find JSON Schemas, XML Schemas, and other formal definitions here.</p>
+                <p>Machine-readable definitions for data structures and formats. You can find JSON Schemas, XML Schemas,
+                    and other formal definitions here.</p>
                 <p><a href="schemas/">Browse Schemas &rarr;</a></p>
             </section>
             <section id="taxonomies">
                 <h2>Taxonomies</h2>
-                <p>Organized classifications and vocabularies. These may include ontologies in formats like JSON-LD or RDF XML, as well as simpler controlled vocabularies.</p>
+                <p>Organized classifications and vocabularies. These may include ontologies in formats like JSON-LD or
+                    RDF XML, as well as simpler controlled vocabularies.</p>
                 <p><a href="taxonomies/">Browse Taxonomies &rarr;</a></p>
             </section>
             <section id="uuids">
                 <h2>UUIDs</h2>
-                <p>Definitions and information related to Universally Unique Identifiers (UUIDs) used for identifying resources or entities within the project ecosystem.</p>
+                <p>Definitions and information related to Universally Unique Identifiers (UUIDs) used for identifying
+                    resources or entities within the project ecosystem.</p>
                 <p><a href="uuids/">Browse UUIDs &rarr;</a></p>
             </section>
             <section id="examples">
@@ -128,4 +188,5 @@
         }
     </script>
 </body>
+
 </html>
