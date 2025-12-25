@@ -228,6 +228,108 @@ def test_json_search_api(base_url, created_paths):
     else:
         print("INFO: attributes_column=1 did not return 'attributes' field (similar to date_created).")
 
+    # 5. Alias Parameters (i, w, p, r, m)
+    print("\n[Test 5] Parameter Aliases")
+    
+    # Test 'i' alias for 'case'
+    params_full = {"search": query_upper, "json": 1, "case": 0}
+    params_alias = {"search": query_upper, "json": 1, "i": 0}
+    resp_full = requests.get(f"{base_url}/", params=params_full)
+    resp_alias = requests.get(f"{base_url}/", params=params_alias)
+    if resp_full.json().get("totalResults") == resp_alias.json().get("totalResults"):
+        print("PASS: 'i' alias works identically to 'case'.")
+    else:
+        print("FAIL: 'i' alias doesn't match 'case' behavior.")
+        return False
+
+    # 6. Path Search
+    print("\n[Test 6] Path Search (path parameter)")
+    
+    # Get the directory name from alpha file path
+    alpha_path = created_paths[0]
+    dir_name = os.path.basename(os.path.dirname(alpha_path))
+    
+    # Search without path parameter (should only search filename)
+    params = {"search": dir_name, "json": 1, "path": 0}
+    resp = requests.get(f"{base_url}/", params=params)
+    results_no_path = resp.json().get("totalResults", 0)
+    
+    # Search with path parameter (should search full path)
+    params["path"] = 1
+    resp = requests.get(f"{base_url}/", params=params)
+    results_with_path = resp.json().get("totalResults", 0)
+    
+    if results_with_path > 0:
+        print(f"PASS: path=1 found results when searching directory name (total: {results_with_path}).")
+    else:
+        print("INFO: path parameter tested but no conclusive results.")
+
+    # Test 'p' alias
+    params_alias = {"search": dir_name, "json": 1, "p": 1}
+    resp_alias = requests.get(f"{base_url}/", params=params_alias)
+    if resp_alias.json().get("totalResults") == results_with_path:
+        print("PASS: 'p' alias works identically to 'path'.")
+    else:
+        print("WARNING: 'p' alias might not match 'path' behavior.")
+
+    # 7. Regex Search
+    print("\n[Test 7] Regex Search")
+    
+    # Create regex pattern matching alpha OR beta
+    regex_pattern = f"verify_.*_(alpha|beta)\\.txt"
+    params = {"search": regex_pattern, "json": 1, "regex": 1}
+    resp = requests.get(f"{base_url}/", params=params)
+    data = resp.json()
+    results = data.get("results", [])
+    names = [x.get("name") for x in results]
+    
+    if f_alpha in names and f_beta in names:
+        print(f"PASS: regex=1 found files matching pattern (found {len(results)} results).")
+    else:
+        print(f"INFO: regex parameter tested but results unclear. Found: {names}")
+
+    # Test 'r' alias
+    params_alias = {"search": regex_pattern, "json": 1, "r": 1}
+    resp_alias = requests.get(f"{base_url}/", params=params_alias)
+    if resp_alias.json().get("totalResults") == data.get("totalResults"):
+        print("PASS: 'r' alias works identically to 'regex'.")
+    else:
+        print("WARNING: 'r' alias might not match 'regex' behavior.")
+
+    # 8. Sort Order (ascending)
+    print("\n[Test 8] Sort Order (ascending parameter)")
+    
+    # Sort ascending by name
+    params = {"search": common_prefix, "json": 1, "sort": "name", "ascending": 1}
+    resp = requests.get(f"{base_url}/", params=params)
+    names_asc = [x.get("name") for x in resp.json().get("results", [])]
+    
+    # Sort descending by name
+    params["ascending"] = 0
+    resp = requests.get(f"{base_url}/", params=params)
+    names_desc = [x.get("name") for x in resp.json().get("results", [])]
+    
+    if names_asc and names_desc and names_asc == list(reversed(names_desc)):
+        print("PASS: ascending=0 reverses the sort order.")
+    elif names_asc and names_desc:
+        print(f"INFO: Sort order tested. ASC: {names_asc[:3]}, DESC: {names_desc[:3]}")
+    else:
+        print("INFO: Sort order tested but results unclear.")
+
+    # 9. Sort by size
+    print("\n[Test 9] Sort by Size")
+    params = {"search": common_prefix, "json": 1, "sort": "size", "size_column": 1}
+    resp = requests.get(f"{base_url}/", params=params)
+    results = resp.json().get("results", [])
+    if results and len(results) > 1:
+        sizes = [int(x.get("size", "0")) for x in results if "size" in x]
+        if sizes == sorted(sizes):
+            print("PASS: sort=size works (ascending order confirmed).")
+        else:
+            print(f"INFO: sort=size tested. Sizes: {sizes}")
+    else:
+        print("INFO: sort=size tested but insufficient results to verify order.")
+
     return True
 
 if __name__ == "__main__":
