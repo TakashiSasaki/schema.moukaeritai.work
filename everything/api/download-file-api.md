@@ -277,7 +277,38 @@ OpenAPI は「パスパラメータが `/` を跨いで貪欲にマッチする�
 
 * [download-file-api.yaml](download-file-api.yaml)
 
-## 8. 参照（一次情報）
+## 8. 検証結果
+
+`download-file-api.py` による実機検証（Everything 1.5 alpha）の結果、以下の挙動を確認済み。
+
+1.  **通常ファイルのダウンロード**:
+    *   ブラウザスタイルパス (`/C%3A/Windows/win.ini`) で 200 OK が返る。
+    *   単一セグメントパス (`/C%3A%2FWindows%2Fwin.ini`) で 200 OK が返る。
+2.  **Rangeリクエスト**: `Range: bytes=0-4` に対して 206 Partial Content が返り、正しいバイト数が取得できる。
+3.  **存在しないファイル**: 正しく 404 Not Found が返る。
+4.  **特殊文字**: ファイル名に `!`, `~`, `'`, `(`, `)`, `_`, `.` が含まれていても正常に取得可能。
+5.  **スペース**: `%20` エンコード、リテラルスペースのどちらでも取得可能。
+6.  **日本語（マルチバイト文字）**:
+    *   UTF-8 でパーセントエンコードしたパスにより正常に取得可能（200 OK）。
+    *   **注意**: ファイル作成直後は Everything のインデックス遅延により一時的に 404 になる場合がある（検証スクリプトでは待機時間を入れて対処）。
+    *   検索結果（HTML）からのリンク発見テストにより、サーバーが生成するリンク形式と合致することを確認済み。
+
+### 検証スクリプトの実行方法
+
+リポジトリ内の `download-file-api.py` を使用して、上記の項目をご自身の環境で検証できます。
+
+```bash
+# 依存ライブラリのインストール
+pip install requests beautifulsoup4
+
+# スクリプトの実行（デフォルトURL: http://127.160.164.78:8000）
+python everything/api/download-file-api.py
+
+# URLを指定して実行する場合
+python everything/api/download-file-api.py --url http://127.0.0.1:80
+```
+
+## 9. 参照（一次情報）
 
 * Everything HTTP Server 公式ドキュメント: [https://www.voidtools.com/support/everything/http/](https://www.voidtools.com/support/everything/http/)
 * Everything.ini 公式ドキュメント（HTTP設定/INI位置）: [https://www.voidtools.com/support/everything/ini/](https://www.voidtools.com/support/everything/ini/)

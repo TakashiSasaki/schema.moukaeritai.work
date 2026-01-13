@@ -89,278 +89,34 @@ APIの安定性のため、本書は正規名（長いキー）を推奨し、�
 
 ---
 
-## OpenAPI 3.1（YAML）
+## 8. 検証結果
 
-以下は **検索（HTML出力）**のみに限定した OpenAPI。
+`search-api-html.py` による実機検証（Everything 1.5 alpha）の結果、以下の挙動を確認済み。
 
-```yaml
-openapi: 3.1.0
-info:
-  title: Everything HTTP Server HTML Search API (json=0)
-  version: "1.0"
-  description: |
-    voidtools Everything 1.5 の HTTP Server（http_server プラグイン）の検索（HTML）仕様。
+1.  **基本検索**: `search` パラメータで指定した文字列（ファイル名）を含む行が HTML 内に見つかる。
+2.  **ページング**: `count` で件数が制限され、`offset` で続きのページが取得できる。
+3.  **大文字小文字 (case)**:
+    *   `case=0` (既定): 大文字小文字を区別せずヒットする。
+    *   `case=1`: 区別し、ヒットしない（0件）挙動となる。
+4.  **ソート**: `sort=name`, `ascending=0` で名前の降順に並ぶことを確認。
 
-    - 本仕様は HTML 出力（json=0 または json パラメータ省略）に限定する。
-    - `json`（または `j`）が非ゼロの場合は JSON が返るが、本仕様の対象外。
+### 検証スクリプトの実行方法
 
-    注意: HTML は人間向けであり、画面構造の変更に弱い（スクレイピング用途には不向き）。
+リポジトリ内の `search-api-html.py` を使用して、上記の項目をご自身の環境で検証できます。
 
-servers:
-  - url: http://127.160.164.78:8000
-    description: |
-      本書の作成者環境（ポート競合回避のために Everything 側設定を変更して使用）。
-      一般的な既定値ではないため、あなたの環境に合わせて変更すること。
+```bash
+# 依存ライブラリのインストール
+pip install requests beautifulsoup4
 
-  - url: http://127.0.0.1:80
-    description: |
-      既定例（127.0.0.1:80 / http://localhost と同等）。
-      ポート80は競合しやすいので、環境に応じて別ポートへ変更する。
+# スクリプトの実行（デフォルトURL: http://127.160.164.78:8000）
+python everything/api/search-api-html.py
 
-paths:
-  /:
-    get:
-      operationId: searchHtml
-      summary: Search indexed files/folders (HTML page)
-      description: |
-        Everything のインデックスを検索し、HTMLページ（text/html）を返す。
-
-        - `json=0` または `json` 省略で HTML モード。
-        - `json`（または `j`）が非ゼロの場合は JSON を返すが、本仕様では扱わない。
-
-        認証:
-        - HTTP Server の設定で username/password が有効な場合、Basic 認証が要求される。
-
-      security:
-        - {}
-        - basicAuth: []
-
-      parameters:
-        - name: search
-          in: query
-          required: false
-          description: |
-            検索文字列。Everything の検索構文に従う。
-            URLクエリとして送るため、`&` や `+` などの予約文字を含む場合は URL エンコードする。
-          schema:
-            type: string
-          examples:
-            filename:
-              summary: Simple filename search
-              value: test.md
-            and_query:
-              summary: AND search (space)
-              value: "ABC 123"
-
-        - name: s
-          in: query
-          required: false
-          deprecated: true
-          description: "`search` の短縮名（互換用）。新規実装では `search` を推奨。"
-          schema:
-            type: string
-
-        - name: q
-          in: query
-          required: false
-          deprecated: true
-          description: "`search` の別名（互換用）。新規実装では `search` を推奨。"
-          schema:
-            type: string
-
-        - name: offset
-          in: query
-          required: false
-          description: "返却開始位置（0-based）。HTMLモード既定は 0。別名 `o`。"
-          schema:
-            type: integer
-            format: int64
-            minimum: 0
-            default: 0
-
-        - name: o
-          in: query
-          required: false
-          deprecated: true
-          description: "`offset` の短縮名（互換用）。"
-          schema:
-            type: integer
-            format: int64
-            minimum: 0
-
-        - name: count
-          in: query
-          required: false
-          description: |
-            表示する最大件数。HTMLモード既定は 32。別名 `c`。
-          schema:
-            type: integer
-            format: int64
-            minimum: 0
-            default: 32
-
-        - name: c
-          in: query
-          required: false
-          deprecated: true
-          description: "`count` の短縮名（互換用）。"
-          schema:
-            type: integer
-            format: int64
-            minimum: 0
-
-        - name: json
-          in: query
-          required: false
-          description: |
-            HTMLモード指定。省略時の既定も 0。
-            非ゼロの場合は JSON を返す（対象外）。
-          schema:
-            type: integer
-            enum: [0]
-            default: 0
-
-        - name: j
-          in: query
-          required: false
-          deprecated: true
-          description: "`json` の短縮名（互換用）。HTMLモードは 0 のみ。"
-          schema:
-            type: integer
-            enum: [0]
-
-        - name: case
-          in: query
-          required: false
-          description: "大文字小文字を区別（別名 `i`）。1=ON, 0=OFF。HTMLモード既定は 0。"
-          schema:
-            type: integer
-            enum: [0, 1]
-            default: 0
-
-        - name: i
-          in: query
-          required: false
-          deprecated: true
-          description: "`case` の短縮名（互換用）。"
-          schema:
-            type: integer
-            enum: [0, 1]
-
-        - name: wholeword
-          in: query
-          required: false
-          description: "単語単位でマッチ（別名 `w`）。1=ON, 0=OFF。HTMLモード既定は 0。"
-          schema:
-            type: integer
-            enum: [0, 1]
-            default: 0
-
-        - name: w
-          in: query
-          required: false
-          deprecated: true
-          description: "`wholeword` の短縮名（互換用）。"
-          schema:
-            type: integer
-            enum: [0, 1]
-
-        - name: path
-          in: query
-          required: false
-          description: "フルパスを検索対象に含める（別名 `p`）。1=ON, 0=OFF。HTMLモード既定は 0。"
-          schema:
-            type: integer
-            enum: [0, 1]
-            default: 0
-
-        - name: p
-          in: query
-          required: false
-          deprecated: true
-          description: "`path` の短縮名（互換用）。"
-          schema:
-            type: integer
-            enum: [0, 1]
-
-        - name: regex
-          in: query
-          required: false
-          description: "正規表現検索（別名 `r`）。1=ON, 0=OFF。HTMLモード既定は 0。"
-          schema:
-            type: integer
-            enum: [0, 1]
-            default: 0
-
-        - name: r
-          in: query
-          required: false
-          deprecated: true
-          description: "`regex` の短縮名（互換用）。"
-          schema:
-            type: integer
-            enum: [0, 1]
-
-        - name: diacritics
-          in: query
-          required: false
-          description: "ダイアクリティカルマークを区別（別名 `m`）。1=ON, 0=OFF。HTMLモード既定は 0。"
-          schema:
-            type: integer
-            enum: [0, 1]
-            default: 0
-
-        - name: m
-          in: query
-          required: false
-          deprecated: true
-          description: "`diacritics` の短縮名（互換用）。"
-          schema:
-            type: integer
-            enum: [0, 1]
-
-        - name: sort
-          in: query
-          required: false
-          description: "ソートキー。HTMLモード既定は name。"
-          schema:
-            type: string
-            enum: [name, path, date_modified, size]
-            default: name
-
-        - name: ascending
-          in: query
-          required: false
-          description: "昇順(1) / 降順(0)。HTMLモード既定は 1。"
-          schema:
-            type: integer
-            enum: [0, 1]
-            default: 1
-
-      responses:
-        "200":
-          description: HTML page (human-readable)
-          content:
-            text/html:
-              schema:
-                type: string
-              examples:
-                htmlSearchPage:
-                  summary: Example HTML (truncated)
-                  value: |
-                    <html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>...</title></head>
-                    <body>...</body></html>
-
-        "401":
-          description: Unauthorized (username/password が有効な場合)
-          content:
-            text/html:
-              schema:
-                type: string
-
-components:
-  securitySchemes:
-    basicAuth:
-      type: http
-      scheme: basic
+# URLを指定して実行する場合
+python everything/api/search-api-html.py --url http://127.0.0.1:80
 ```
+
+## 9. OpenAPI 定義ファイル
+
+詳細なOpenAPI定義（YAML）は、以下のファイルを参照してください。
+
+* [search-api-html.yaml](search-api-html.yaml)

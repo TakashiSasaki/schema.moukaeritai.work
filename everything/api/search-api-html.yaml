@@ -1,7 +1,10 @@
 openapi: 3.1.0
 info:
   title: Everything HTTP Server HTML Search API (json=0 or omitted)
-  version: "1.0.0"
+  version: "1.4.0"
+  contact:
+    name: Takashi Sasaki
+    url: https://x.com/TakashiSasaki
   description: |
     voidtools Everything 1.5 の HTTP Server プラグイン（voidtools/http_server）を、
     **json=0 または json パラメータ省略（HTMLページ出力）に限定**して仕様化した OpenAPI。

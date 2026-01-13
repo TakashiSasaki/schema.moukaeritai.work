@@ -1,7 +1,10 @@
 openapi: 3.1.0
 info:
   title: Everything HTTP Server Binary Download API
-  version: "1.3.0"
+  version: "1.4.0"
+  contact:
+    name: Takashi Sasaki
+    url: https://x.com/TakashiSasaki
   description: |
     Everything (voidtools) の HTTP Server で「ファイル実体（バイナリ）」を取得するための OpenAPI 仕様。
 
@@ -422,14 +425,16 @@ paths:
              Space becomes %20.
 
         Two equivalent URL styles are typically accepted:
-          A) "Browser link style" (slashes are literal path separators):
+          A) "Browser link style" (Recommended / Matches real links):
                /C%3A/Program%20Files/nodejs/.../npm-install-ci-test.md
-             This matches your observed DOM link format.
+             - This matches what Everything's HTML interface generates.
+             - It uses literal slashes '/' as path separators.
+             - It is the most robust way to access files if your HTTP client supports it.
 
-          B) "Single-segment style" (internal slashes percent-encoded as %2F):
+          B) "Single-segment style" (Tooling-compatible):
                /C%3A%2FProgram%20Files%2Fnodejs%2F...%2Fnpm-install-ci-test.md
-             This is often easier for API client libraries and for OpenAPI tooling because it
-             avoids embedded '/' inside the path parameter value.
+             - This treats the whole Windows path as a single encoded segment (internal slashes as %2F).
+             - Use this if your API client or OpenAPI tool has trouble with embedded slashes in path parameters.
 
         Server-side decoding and normalization (important for correct requests):
           - The server percent-decodes the URL path (unescape).
