@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema.moukaeritai.work/bookmark/schema.json",
+  "title": "Bookmark",
+  "description": "A structured representation of a bookmark within the moukaeritai.work ecosystem, including metadata for categorization, visual representation, and searchability.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the bookmark"
+    },
+    "title": {
+      "type": "string",
+      "description": "Display title of the bookmark"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Target URL"
+    },
+    "description": {
+      "type": "string",
+      "description": "A concise summary or explanation of the bookmarked resource's content and purpose. This text is displayed in the UI card to help the user identify the link."
+    },
+    "visuals": {
+      "type": "object",
+      "description": "Visual representation elements",
+      "properties": {
+        "groupEmoji": {
+          "type": "string",
+          "description": "Emoji representing the category or group"
+        },
+        "itemEmoji": {
+          "type": "string",
+          "description": "Emoji representing the specific item"
+        },
+        "iconPath": {
+          "type": "string",
+          "description": "SVG path data (d attribute) for the icon"
+        }
+      },
+      "required": ["iconPath"]
+    },
+    "classification": {
+      "type": "object",
+      "description": "Classification and taxonomy",
+      "properties": {
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Keywords for search and filtering"
+        }
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": ["id", "title", "url", "visuals"]
+}
